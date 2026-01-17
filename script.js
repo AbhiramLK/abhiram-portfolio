@@ -311,8 +311,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const particleCanvas = document.getElementById('particle-text-canvas');
     if (!particleCanvas) return;
 
+    const particleSection = document.querySelector('.particle-text-section');
+    if (!particleSection) return;
+
     const pCtx = particleCanvas.getContext('2d');
     const pDpr = window.devicePixelRatio || 1;
+    let isAnimating = false;
+    let animationFrameId = null;
     
     function resizeParticleCanvas() {
         const rect = particleCanvas.getBoundingClientRect();
@@ -395,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const centerY = particleCanvas.height / (2 * pDpr);
         
         if (state === 'assemble') {
-            transitionProgress += 0.025;
+            transitionProgress += 0.015;
             if (transitionProgress >= 1) {
                 transitionProgress = 1;
                 state = 'hold';
@@ -407,18 +412,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dy = (target.baseY + centerY) - p.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 
-                p.vx += dx * 0.12 * transitionProgress;
-                p.vy += dy * 0.12 * transitionProgress;
-                p.vx *= 0.88;
-                p.vy *= 0.88;
+                p.vx += dx * 0.08 * transitionProgress;
+                p.vy += dy * 0.08 * transitionProgress;
+                p.vx *= 0.90;
+                p.vy *= 0.90;
                 
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.min(1, p.opacity + 0.05);
+                p.opacity = Math.min(1, p.opacity + 0.03);
             });
         } else if (state === 'hold') {
-            transitionProgress += 0.01;
-            if (transitionProgress > 1.5) {
+            transitionProgress += 0.005;
+            if (transitionProgress > 2) {
                 state = 'dissolve';
                 transitionProgress = 0;
             }
@@ -448,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 p.vy *= 0.95;
             });
         } else if (state === 'dissolve') {
-            transitionProgress += 0.03;
+            transitionProgress += 0.018;
             if (transitionProgress >= 1) {
                 currentWordIndex = (currentWordIndex + 1) % words.length;
                 particles = particles.map(p => ({
@@ -456,8 +461,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: p.y,
                     baseX: (Math.random() - 0.5) * particleCanvas.width,
                     baseY: (Math.random() - 0.5) * particleCanvas.height,
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: (Math.random() - 0.5) * 3,
+                    vx: (Math.random() - 0.5) * 2.5,
+                    vy: (Math.random() - 0.5) * 2.5,
                     opacity: p.opacity
                 }));
                 initParticles();
@@ -465,13 +470,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             particles.forEach(p => {
-                p.vx += (Math.random() - 0.5) * 1.2;
-                p.vy += (Math.random() - 0.5) * 1.2;
-                p.vx *= 0.96;
-                p.vy *= 0.96;
+                p.vx += (Math.random() - 0.5) * 0.8;
+                p.vy += (Math.random() - 0.5) * 0.8;
+                p.vx *= 0.97;
+                p.vy *= 0.97;
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.max(0, p.opacity - 0.04);
+                p.opacity = Math.max(0, p.opacity - 0.025);
             });
         }
     }
@@ -493,17 +498,47 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function animateParticles() {
+        if (!isAnimating) return;
         updateParticles();
         drawParticles();
-        requestAnimationFrame(animateParticles);
+        animationFrameId = requestAnimationFrame(animateParticles);
+    }
+
+    function startAnimation() {
+        if (isAnimating) return;
+        isAnimating = true;
+        if (particles.length === 0) {
+            initParticles();
+        }
+        animateParticles();
+    }
+
+    function stopAnimation() {
+        isAnimating = false;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
     }
 
     particleCanvas.addEventListener('mousemove', function(e) {
+        if (!isAnimating) return;
         const rect = particleCanvas.getBoundingClientRect();
         mouseX = (e.clientX - rect.left) * pDpr;
         mouseY = (e.clientY - rect.top) * pDpr;
     }, { passive: true });
 
-    initParticles();
-    animateParticles();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                startAnimation();
+            } else {
+                stopAnimation();
+            }
+        });
+    }, {
+        threshold: 0.2
+    });
+
+    observer.observe(particleSection);
 });
