@@ -472,47 +472,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const particleCanvas = document.getElementById('particle-text-canvas');
     if (!particleCanvas) return;
 
-    const particleSection = document.querySelector('.particle-text-section');
-    if (!particleSection) return;
-
     const pCtx = particleCanvas.getContext('2d');
     if (!pCtx) return;
     
-    const pDpr = window.devicePixelRatio || 1;
-    let isAnimating = false;
-    let animationFrameId = null;
-    let canvasWidth = 0;
-    let canvasHeight = 0;
+    const CANVAS_WIDTH = 1200;
+    const CANVAS_HEIGHT = 500;
+    const DPR = window.devicePixelRatio || 1;
     
-    function resizeParticleCanvas() {
-        if (!particleCanvas || !particleCanvas.parentNode || !pCtx) return;
-        const rect = particleCanvas.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) {
-            requestAnimationFrame(resizeParticleCanvas);
-            return;
-        }
-        
-        const width = rect.width;
-        const height = rect.height;
-        canvasWidth = width;
-        canvasHeight = height;
-        
-        particleCanvas.width = width * pDpr;
-        particleCanvas.height = height * pDpr;
-        pCtx.scale(pDpr, pDpr);
-        particleCanvas.style.width = width + 'px';
-        particleCanvas.style.height = height + 'px';
-    }
+    particleCanvas.width = CANVAS_WIDTH * DPR;
+    particleCanvas.height = CANVAS_HEIGHT * DPR;
+    particleCanvas.style.width = CANVAS_WIDTH + 'px';
+    particleCanvas.style.height = CANVAS_HEIGHT + 'px';
+    pCtx.scale(DPR, DPR);
     
-    resizeParticleCanvas();
-    
-    let particleResizeTimeout = null;
-    window.addEventListener('resize', function() {
-        if (particleResizeTimeout) clearTimeout(particleResizeTimeout);
-        particleResizeTimeout = setTimeout(() => {
-            resizeParticleCanvas();
-        }, 150);
-    }, { passive: true });
+    particleCanvas.style.position = 'relative';
+    particleCanvas.style.zIndex = '1';
 
     const words = ['BLOCKCHAIN', 'DECENTRALIZED', 'DISTRIBUTED', 'CONSENSUS', 'NETWORK'];
     let currentWordIndex = 0;
@@ -520,9 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let targetParticles = [];
     let transitionProgress = 0;
     let state = 'assemble';
-    let mouseX = 0;
-    let mouseY = 0;
-    let isInitialized = false;
+    let particleAnimationId = null;
 
     function getTextParticles(text, fontSize = 120) {
         const tempCanvas = document.createElement('canvas');
@@ -540,20 +512,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
         const data = imageData.data;
         const points = [];
-        const step = 4;
+        const step = 5;
 
         for (let y = 0; y < tempCanvas.height; y += step) {
             for (let x = 0; x < tempCanvas.width; x += step) {
                 const index = (y * tempCanvas.width + x) * 4;
                 if (data[index + 3] > 128) {
                     points.push({
-                        x: x - tempCanvas.width / 2,
-                        y: y - tempCanvas.height / 2,
                         baseX: x - tempCanvas.width / 2,
-                        baseY: y - tempCanvas.height / 2,
-                        vx: 0,
-                        vy: 0,
-                        opacity: 1
+                        baseY: y - tempCanvas.height / 2
                     });
                 }
             }
@@ -563,165 +530,103 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initParticles() {
-        if (!particleCanvas || canvasWidth === 0 || canvasHeight === 0) {
-            if (canvasWidth === 0 || canvasHeight === 0) {
-                resizeParticleCanvas();
-                setTimeout(() => initParticles(), 50);
-            }
-            return;
-        }
-        
         const word = words[currentWordIndex];
         targetParticles = getTextParticles(word);
         if (targetParticles.length === 0) return;
         
-        if (!isInitialized || particles.length === 0) {
-            const startX = canvasWidth / 2;
-            const startY = canvasHeight / 2;
-            
-            particles = targetParticles.map((p, i) => {
-                const angle = (i / targetParticles.length) * Math.PI * 2;
-                const radius = Math.min(canvasWidth, canvasHeight) * 0.3;
-                return {
-                    x: startX + Math.cos(angle) * radius * (0.5 + Math.random() * 0.5),
-                    y: startY + Math.sin(angle) * radius * (0.5 + Math.random() * 0.5),
-                    baseX: p.baseX,
-                    baseY: p.baseY,
-                    vx: 0,
-                    vy: 0,
-                    opacity: 0
-                };
-            });
-            isInitialized = true;
-            state = 'assemble';
-            transitionProgress = 0;
-        } else {
-            if (particles.length !== targetParticles.length) {
-                if (particles.length < targetParticles.length) {
-                    const startX = canvasWidth / 2;
-                    const startY = canvasHeight / 2;
-                    while (particles.length < targetParticles.length) {
-                        const angle = Math.random() * Math.PI * 2;
-                        const radius = Math.min(canvasWidth, canvasHeight) * 0.3;
-                        particles.push({
-                            x: startX + Math.cos(angle) * radius,
-                            y: startY + Math.sin(angle) * radius,
-                            baseX: 0,
-                            baseY: 0,
-                            vx: 0,
-                            vy: 0,
-                            opacity: 0
-                        });
-                    }
-                } else {
-                    particles = particles.slice(0, targetParticles.length);
-                }
-            }
-            
-            particles.forEach((p, i) => {
-                if (targetParticles[i]) {
-                    p.baseX = targetParticles[i].baseX;
-                    p.baseY = targetParticles[i].baseY;
-                }
-                p.vx = 0;
-                p.vy = 0;
-            });
-            
-            state = 'assemble';
-            transitionProgress = 0;
-        }
+        const centerX = CANVAS_WIDTH / 2;
+        const centerY = CANVAS_HEIGHT / 2;
+        
+        particles = targetParticles.map((p, i) => {
+            const angle = (i / targetParticles.length) * Math.PI * 2;
+            const radius = 150;
+            return {
+                x: centerX + Math.cos(angle) * radius,
+                y: centerY + Math.sin(angle) * radius,
+                baseX: p.baseX,
+                baseY: p.baseY,
+                vx: 0,
+                vy: 0,
+                opacity: 0
+            };
+        });
+        
+        state = 'assemble';
+        transitionProgress = 0;
     }
 
     function updateParticles() {
-        if (!particleCanvas || !particleCanvas.parentNode || particles.length === 0 || targetParticles.length === 0) return;
-        const centerX = canvasWidth / 2;
-        const centerY = canvasHeight / 2;
+        if (particles.length === 0 || targetParticles.length === 0) return;
+        
+        const centerX = CANVAS_WIDTH / 2;
+        const centerY = CANVAS_HEIGHT / 2;
         
         if (state === 'assemble') {
-            transitionProgress += 0.015;
+            transitionProgress += 0.012;
             if (transitionProgress >= 1) {
                 transitionProgress = 1;
                 state = 'hold';
             }
             
             particles.forEach((p, i) => {
-                const target = targetParticles[i] || { baseX: 0, baseY: 0 };
+                const target = targetParticles[i];
+                if (!target) return;
+                
                 const dx = (target.baseX + centerX) - p.x;
                 const dy = (target.baseY + centerY) - p.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
                 
-                p.vx += dx * 0.08 * transitionProgress;
-                p.vy += dy * 0.08 * transitionProgress;
-                p.vx *= 0.90;
-                p.vy *= 0.90;
+                p.vx += dx * 0.07;
+                p.vy += dy * 0.07;
+                p.vx *= 0.92;
+                p.vy *= 0.92;
                 
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.min(1, p.opacity + 0.03);
+                p.opacity = Math.min(1, p.opacity + 0.025);
             });
         } else if (state === 'hold') {
-            transitionProgress += 0.005;
-            if (transitionProgress > 2) {
+            transitionProgress += 0.004;
+            if (transitionProgress > 3) {
                 state = 'dissolve';
                 transitionProgress = 0;
             }
             
             particles.forEach((p, i) => {
-                const target = targetParticles[i] || { baseX: 0, baseY: 0 };
+                const target = targetParticles[i];
+                if (!target) return;
+                
                 const targetX = target.baseX + centerX;
                 const targetY = target.baseY + centerY;
                 
                 const dx = targetX - p.x;
                 const dy = targetY - p.y;
-                p.x += dx * 0.1;
-                p.y += dy * 0.1;
-                
-                const mouseDx = mouseX - p.x;
-                const mouseDy = mouseY - p.y;
-                const mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
-                if (mouseDist < 150) {
-                    const force = (150 - mouseDist) / 150 * 0.3;
-                    p.vx -= mouseDx * force * 0.001;
-                    p.vy -= mouseDy * force * 0.001;
-                }
-                
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vx *= 0.95;
-                p.vy *= 0.95;
+                p.x += dx * 0.08;
+                p.y += dy * 0.08;
             });
         } else if (state === 'dissolve') {
-            transitionProgress += 0.018;
+            transitionProgress += 0.015;
             if (transitionProgress >= 1) {
                 currentWordIndex = (currentWordIndex + 1) % words.length;
-                particles = particles.map(p => ({
-                    x: p.x,
-                    y: p.y,
-                    baseX: 0,
-                    baseY: 0,
-                    vx: (Math.random() - 0.5) * 2.5,
-                    vy: (Math.random() - 0.5) * 2.5,
-                    opacity: p.opacity
-                }));
                 initParticles();
                 return;
             }
             
             particles.forEach(p => {
-                p.vx += (Math.random() - 0.5) * 0.8;
-                p.vy += (Math.random() - 0.5) * 0.8;
-                p.vx *= 0.97;
-                p.vy *= 0.97;
+                p.vx += (Math.random() - 0.5) * 0.6;
+                p.vy += (Math.random() - 0.5) * 0.6;
+                p.vx *= 0.96;
+                p.vy *= 0.96;
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.max(0, p.opacity - 0.025);
+                p.opacity = Math.max(0, p.opacity - 0.02);
             });
         }
     }
 
     function drawParticles() {
-        if (!particleCanvas || !particleCanvas.parentNode || !pCtx || particles.length === 0 || canvasWidth === 0) return;
-        pCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+        if (particles.length === 0) return;
+        
+        pCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         
         particles.forEach((p, i) => {
             if (p.opacity > 0.01) {
@@ -737,64 +642,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function animateParticles() {
-        if (!isAnimating || !particleCanvas || !particleCanvas.parentNode) {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            return;
-        }
         updateParticles();
         drawParticles();
-        animationFrameId = requestAnimationFrame(animateParticles);
+        particleAnimationId = requestAnimationFrame(animateParticles);
     }
 
-    function startAnimation() {
-        if (isAnimating || !particleCanvas || !particleCanvas.parentNode) return;
-        
-        if (!isInitialized || particles.length === 0 || targetParticles.length === 0) {
-            initParticles();
-            if (particles.length === 0 || targetParticles.length === 0) {
-                setTimeout(() => startAnimation(), 100);
-                return;
-            }
+    initParticles();
+    if (particles.length > 0) {
+        if (particleAnimationId) {
+            cancelAnimationFrame(particleAnimationId);
         }
-        
-        isAnimating = true;
-        animateParticles();
+        particleAnimationId = requestAnimationFrame(animateParticles);
     }
-
-    particleCanvas.addEventListener('mousemove', function(e) {
-        const rect = particleCanvas.getBoundingClientRect();
-        mouseX = (e.clientX - rect.left);
-        mouseY = (e.clientY - rect.top);
-    }, { passive: true });
-
-    function initializeParticleSystem() {
-        if (canvasWidth === 0 || canvasHeight === 0) {
-            resizeParticleCanvas();
-            setTimeout(() => initializeParticleSystem(), 50);
-            return;
-        }
-        
-        if (!isInitialized || particles.length === 0) {
-            initParticles();
-        }
-        
-        if (particles.length > 0 && targetParticles.length > 0 && !isAnimating) {
-            startAnimation();
-        } else if (particles.length === 0 || targetParticles.length === 0) {
-            setTimeout(() => initializeParticleSystem(), 100);
-        }
-    }
-
-    setTimeout(() => {
-        initializeParticleSystem();
-    }, 300);
-
-    window.addEventListener('load', () => {
-        setTimeout(() => initializeParticleSystem(), 200);
-    });
 
     const aboutSection = document.getElementById('about');
     const narrativeContent = document.querySelector('.narrative-content');
@@ -812,5 +671,111 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         aboutObserver.observe(aboutSection);
+    }
+
+    const hyperTextElements = document.querySelectorAll('.hyper-text');
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+    function getRandomChar() {
+        return chars[Math.floor(Math.random() * chars.length)];
+    }
+    
+    function animateHyperText(element) {
+        if (!element) return;
+        
+        const originalText = element.getAttribute('data-text') || element.textContent.trim();
+        if (!originalText) return;
+        
+        const activeAnimations = element.dataset.animating === 'true';
+        if (activeAnimations) return;
+        
+        element.dataset.animating = 'true';
+        element.classList.add('scrambling');
+        
+        const textChars = originalText.split('');
+        element.innerHTML = '';
+        
+        textChars.forEach((char, index) => {
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = char === ' ' ? '\u00A0' : getRandomChar();
+            element.appendChild(span);
+        });
+        
+        let scrambleCount = 0;
+        let resolveIndex = 0;
+        const maxScrambles = 8;
+        
+        const scrambleInterval = setInterval(() => {
+            if (resolveIndex >= textChars.length) {
+                clearInterval(scrambleInterval);
+                return;
+            }
+            
+            textChars.forEach((char, index) => {
+                if (index < resolveIndex) return;
+                const span = element.querySelectorAll('.char')[index];
+                if (span && char !== ' ') {
+                    span.textContent = getRandomChar();
+                }
+            });
+            
+            scrambleCount++;
+        }, 40);
+        
+        const resolveInterval = setInterval(() => {
+            if (resolveIndex < textChars.length) {
+                const span = element.querySelectorAll('.char')[resolveIndex];
+                if (span) {
+                    const char = textChars[resolveIndex];
+                    span.textContent = char === ' ' ? '\u00A0' : char;
+                }
+                resolveIndex++;
+            } else {
+                clearInterval(scrambleInterval);
+                clearInterval(resolveInterval);
+                
+                setTimeout(() => {
+                    element.classList.remove('scrambling');
+                    element.classList.add('resolved');
+                    
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                        element.classList.remove('resolved');
+                        element.dataset.animating = 'false';
+                    }, 600);
+                }, 100);
+            }
+        }, 60);
+    }
+    
+    function initHyperText() {
+        hyperTextElements.forEach((element, index) => {
+            const isHeroWord = element.classList.contains('hero-word');
+            const baseDelay = isHeroWord ? 1200 : 800;
+            const delay = baseDelay + (index * 150);
+            
+            setTimeout(() => {
+                animateHyperText(element);
+            }, delay);
+            
+            let hoverTimeout = null;
+            element.addEventListener('mouseenter', function() {
+                if (hoverTimeout) clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(() => {
+                    if (this.dataset.animating !== 'true') {
+                        animateHyperText(this);
+                    }
+                }, 300);
+            });
+        });
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initHyperText, 100);
+        });
+    } else {
+        setTimeout(initHyperText, 100);
     }
 });
