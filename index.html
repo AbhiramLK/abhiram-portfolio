@@ -1,74 +1,19 @@
 <!DOCTYPE html>
-<!--
-    index.html - The Main File
-    
-    This is an HTML file. HTML (HyperText Markup Language) is the language
-    that structures the content of web pages. Think of it as the skeleton
-    of your website - it defines what content appears and how it's organized.
-    
-    The <!DOCTYPE html> at the top tells the browser "this is an HTML document".
-    Everything else is wrapped in HTML tags, which are like labels that tell
-    the browser what each part is (like a heading, paragraph, link, etc.).
--->
 <html lang="en">
-<!--
-    <html> is the root tag - everything goes inside this.
-    lang="en" tells the browser the page is in English.
--->
 <head>
-    <!--
-        <head> contains information about the page that users don't see directly,
-        but browsers and search engines use. Like the page title, character encoding,
-        and links to CSS files.
-    -->
     <meta charset="UTF-8">
-    <!--
-        charset tells the browser how to interpret characters.
-        UTF-8 includes most characters from all languages.
-    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--
-        viewport meta tag makes the page responsive - it works well on
-        phones, tablets, and computers by adjusting to the screen size.
-    -->
-    <title>Portfolio - Abhiram</title>
-    <!--
-        <title> shows up in the browser tab and when you bookmark the page.
-    -->
+    <title>Abhiram Chandrasekhar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!--
-        These links load the Poppins font from Google Fonts.
-        preconnect helps load the font faster by establishing early connections.
-        We're loading multiple font weights (300, 400, 500, 600, 700) for typography variety.
-    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!--
-        This links to the CSS file that styles this page.
-        CSS controls colors, fonts, spacing, layout - how things look.
-    -->
 </head>
 <body>
-    <!--
-        <body> contains all the visible content that users see on the page.
-    -->
     <header>
-        <!--
-            <header> is a semantic tag - it represents the top section
-            of a page, typically containing a logo and navigation.
-        -->
         <nav>
-            <!--
-                <nav> represents navigation links (menu items).
-            -->
-            <div class="logo">Portfolio</div>
+            <div class="logo">AC</div>
             <ul class="nav-links">
-                <!--
-                    <ul> is an unordered list (bullet points).
-                    <li> are list items.
-                -->
-                <li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -76,138 +21,61 @@
         </nav>
     </header>
 
-    <!--
-        Hero section - This is the introductory banner at the top of the page.
-        It's semantically placed before <main> as it's a special introductory section.
-    -->
-    <section id="home" class="hero" role="banner">
-        <!--
-            <section> groups related content together.
-            id="home" lets us link directly to this section (see nav links above).
-            class="hero" adds a CSS class for styling - we'll style this as a hero section.
-            role="banner" is an ARIA landmark role that indicates this is the main
-            banner/introductory content of the page.
-        -->
+    <section id="home" class="hero">
         <div class="hero-content">
-            <!--
-                <div class="hero-content"> wraps the hero content for better structure
-                and styling flexibility. This is a container for the hero elements.
-            -->
-            <h1>Abhiram Chandrasekhar</h1>
-            <!--
-                <h1> is the main heading (largest heading).
-                This displays your full name prominently in the hero section.
-            -->
-            <p class="tagline">Building decentralized systems and blockchain infrastructure</p>
-            <!--
-                <p> is a paragraph tag for regular text.
-                class="tagline" styles this as a tagline - a short description
-                that appears below your name. This tells visitors what you do.
-            -->
+            <h1 class="hero-name">Abhiram<br>Chandrasekhar</h1>
+            <p class="hero-tagline">Building decentralized systems<br>and blockchain infrastructure</p>
         </div>
     </section>
 
     <main>
-        <!--
-            <main> represents the main content of the page.
-            This contains the primary content sections (about, projects, contact).
-            The hero section is outside main as it's a special introductory banner.
-        -->
-        <section id="about" aria-labelledby="about-heading">
-            <!--
-                <section> groups related content together.
-                id="about" lets us link directly to this section (see nav links above).
-                aria-labelledby links this section to its heading for better accessibility.
-            -->
-            <h2 id="about-heading">About Me</h2>
-            <!--
-                <h2> is a subheading (smaller than h1).
-                id="about-heading" connects this heading to the section's aria-labelledby.
-            -->
-            <div class="section-content">
-                <!--
-                    <div class="section-content"> wraps the content for consistent
-                    styling and structure across sections.
-                -->
+        <section id="about" class="content-section">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2>About</h2>
+            </div>
+            <div class="section-body">
                 <p>This is where you can write about yourself, your skills, and what you do.</p>
                 <p>Replace this with your own information!</p>
             </div>
         </section>
 
-        <section id="projects" aria-labelledby="projects-heading">
-            <!--
-                <section> groups related content together.
-                id="projects" lets us link directly to this section (see nav links above).
-                aria-labelledby links this section to its heading for better accessibility.
-            -->
-            <h2 id="projects-heading">Projects</h2>
+        <section id="projects" class="content-section">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2>Projects</h2>
+            </div>
             <div class="projects-grid">
-                <!--
-                    <div class="projects-grid"> creates a grid layout for project cards.
-                    This uses CSS Grid to arrange projects in a responsive grid.
-                -->
                 <article class="project-card">
-                    <!--
-                        <article> is a semantic HTML5 element that represents
-                        a self-contained piece of content. Each project is an article
-                        because it can stand alone as a complete piece of information.
-                        This is more semantic than using <div>.
-                    -->
                     <h3>Project 1</h3>
-                    <!--
-                        <h3> is a heading for the project title.
-                    -->
                     <p>Description of your first project goes here.</p>
                 </article>
                 <article class="project-card">
-                    <!--
-                        Each project is an <article> for semantic structure.
-                    -->
                     <h3>Project 2</h3>
                     <p>Description of your second project goes here.</p>
                 </article>
                 <article class="project-card">
-                    <!--
-                        Each project is an <article> for semantic structure.
-                    -->
                     <h3>Project 3</h3>
                     <p>Description of your third project goes here.</p>
                 </article>
             </div>
         </section>
 
-        <section id="contact" aria-labelledby="contact-heading">
-            <!--
-                <section> groups related content together.
-                id="contact" lets us link directly to this section (see nav links above).
-                aria-labelledby links this section to its heading for better accessibility.
-            -->
-            <h2 id="contact-heading">Contact</h2>
-            <div class="section-content">
-                <!--
-                    <div class="section-content"> wraps the content for consistent
-                    styling and structure across sections.
-                -->
+        <section id="contact" class="content-section">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2>Contact</h2>
+            </div>
+            <div class="section-body">
                 <p>You can add your email, social media links, or a contact form here.</p>
             </div>
         </section>
     </main>
 
     <footer>
-        <!--
-            <footer> represents the bottom section of a page,
-            often containing copyright info or links.
-        -->
-        <p>&copy; 2026 Abhiram. All rights reserved.</p>
-        <!--
-            &copy; is an HTML entity - it displays as the copyright symbol ©.
-        -->
+        <p>&copy; 2026 Abhiram Chandrasekhar</p>
     </footer>
 
     <script src="script.js"></script>
-    <!--
-        This links to the JavaScript file that adds interactivity to the page.
-        JavaScript can respond to clicks, scrolls, and other user actions.
-    -->
 </body>
 </html>
