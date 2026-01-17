@@ -120,19 +120,45 @@ section {
     */
 }
 
-/* Styling the home section specifically */
-#home {
+/* Styling the home section specifically - This is the hero section */
+#home.hero {
     text-align: center;
     /* text-align: center centers text horizontally. */
-    background-color: white;
-    padding: 6rem 2rem;
+    background-color: #1a1a1a;
+    /* background-color: #1a1a1a is a very dark gray/black color.
+       This creates the dark background you requested for the hero section. */
+    color: white;
+    /* color: white makes all text white so it's visible on the dark background. */
+    padding: 8rem 2rem;
+    /* padding: 8rem 2rem adds more vertical space (8rem top/bottom) to make
+       the hero section more prominent and give it that "hero" feel.
+       2rem on the sides provides some breathing room. */
+    min-height: 70vh;
+    /* min-height: 70vh makes the hero section take up at least 70% of
+       the viewport height - this makes it a prominent first impression. */
 }
 
-#home h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+#home.hero h1 {
+    font-size: 3.5rem;
+    /* font-size: 3.5rem makes the name large and eye-catching. */
+    margin-bottom: 1.5rem;
+    /* margin-bottom adds space between the name and tagline. */
+    color: white;
+    /* Explicitly setting color to white ensures it shows on dark background. */
 }
 
+.tagline {
+    font-size: 1.5rem;
+    /* font-size: 1.5rem makes the tagline readable but smaller than the name. */
+    color: #e0e0e0;
+    /* color: #e0e0e0 is a light gray - slightly softer than pure white
+       for the tagline, which creates a nice visual hierarchy. */
+    font-weight: 300;
+    /* font-weight: 300 makes the text thinner/lighter, giving it a more
+       elegant, modern look typical of hero sections. */
+}
+
+/* Keep the old .subtitle class for backwards compatibility if used elsewhere */
 .subtitle {
     font-size: 1.25rem;
     color: #666;
@@ -252,9 +278,14 @@ footer {
         text-align: center;
     }
     
-    #home h1 {
-        font-size: 2rem;
-        /* Smaller heading on mobile. */
+    #home.hero h1 {
+        font-size: 2.5rem;
+        /* Smaller heading on mobile - still readable but fits better on small screens. */
+    }
+    
+    .tagline {
+        font-size: 1.2rem;
+        /* Smaller tagline on mobile for better fit. */
     }
     
     .projects-grid {
