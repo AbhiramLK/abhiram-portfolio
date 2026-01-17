@@ -25,15 +25,31 @@
 
     const words = ['Hello', 'Hola', 'Ciao', 'こんにちは'];
     let currentWordIndex = 0;
-    let wordInterval;
+    let wordInterval = null;
+    let exitTimeout = null;
+
+    function cleanupPreloader() {
+        if (wordInterval) {
+            clearTimeout(wordInterval);
+            wordInterval = null;
+        }
+        if (exitTimeout) {
+            clearTimeout(exitTimeout);
+            exitTimeout = null;
+        }
+    }
 
     function showWord(index) {
         if (index >= words.length) {
-            setTimeout(() => {
+            exitTimeout = setTimeout(() => {
+                if (!preloader.parentNode) return;
                 preloader.classList.add('exiting');
-                setTimeout(() => {
+                exitTimeout = setTimeout(() => {
+                    cleanupPreloader();
                     sessionStorage.setItem('preloader-complete', 'true');
-                    preloader.remove();
+                    if (preloader.parentNode) {
+                        preloader.remove();
+                    }
                     if (document.body) {
                         document.body.classList.remove('preloader-active');
                     }
@@ -42,17 +58,28 @@
             return;
         }
 
+        if (!preloaderWord || !preloaderWord.parentNode) {
+            cleanupPreloader();
+            return;
+        }
+
         preloaderWord.textContent = words[index];
         preloaderWord.classList.remove('visible');
         
         setTimeout(() => {
+            if (!preloaderWord || !preloaderWord.parentNode) {
+                cleanupPreloader();
+                return;
+            }
             preloaderWord.classList.add('visible');
             currentWordIndex++;
             
             wordInterval = setTimeout(() => {
                 if (currentWordIndex < words.length) {
-                    preloaderWord.classList.remove('visible');
-                    setTimeout(() => showWord(currentWordIndex), 200);
+                    if (preloaderWord && preloaderWord.parentNode) {
+                        preloaderWord.classList.remove('visible');
+                        setTimeout(() => showWord(currentWordIndex), 200);
+                    }
                 } else {
                     showWord(currentWordIndex);
                 }
@@ -104,37 +131,69 @@ document.addEventListener('DOMContentLoaded', function() {
     duplicateContent(topRow, 12);
     duplicateContent(bottomRow, 12);
 
+    setTimeout(() => {
+        calculateContentWidths();
+    }, 100);
+
     let lastScrollY = window.scrollY;
     let velocity = { top: 0, bottom: 0 };
     let position = { top: 0, bottom: 0 };
     let inertia = 0.92;
+    let scrollAnimationId = null;
+    let topContentWidth = 0;
+    let bottomContentWidth = 0;
 
-    const topContentWidth = topRow.scrollWidth / 2;
-    const bottomContentWidth = bottomRow.scrollWidth / 2;
+    function calculateContentWidths() {
+        if (!topRow || !bottomRow) return;
+        topContentWidth = topRow.scrollWidth / 2;
+        bottomContentWidth = bottomRow.scrollWidth / 2;
+    }
+
+    calculateContentWidths();
+    
+    let resizeTimeout = null;
+    window.addEventListener('resize', function() {
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            calculateContentWidths();
+        }, 150);
+    }, { passive: true });
 
     function animateScroll() {
+        if (!topRow || !bottomRow || !topRow.parentNode || !bottomRow.parentNode) {
+            if (scrollAnimationId) {
+                cancelAnimationFrame(scrollAnimationId);
+                scrollAnimationId = null;
+            }
+            return;
+        }
+
         velocity.top *= inertia;
         velocity.bottom *= inertia;
 
         position.top += velocity.top;
         position.bottom += velocity.bottom;
 
-        if (position.top >= topContentWidth) {
-            position.top -= topContentWidth;
-        } else if (position.top <= -topContentWidth) {
-            position.top += topContentWidth;
+        if (topContentWidth > 0) {
+            if (position.top >= topContentWidth) {
+                position.top -= topContentWidth;
+            } else if (position.top <= -topContentWidth) {
+                position.top += topContentWidth;
+            }
         }
 
-        if (position.bottom >= bottomContentWidth) {
-            position.bottom -= bottomContentWidth;
-        } else if (position.bottom <= -bottomContentWidth) {
-            position.bottom += bottomContentWidth;
+        if (bottomContentWidth > 0) {
+            if (position.bottom >= bottomContentWidth) {
+                position.bottom -= bottomContentWidth;
+            } else if (position.bottom <= -bottomContentWidth) {
+                position.bottom += bottomContentWidth;
+            }
         }
 
         topRow.style.transform = `translateX(-${position.top}px)`;
         bottomRow.style.transform = `translateX(-${position.bottom}px)`;
 
-        requestAnimationFrame(animateScroll);
+        scrollAnimationId = requestAnimationFrame(animateScroll);
     }
 
     let ticking = false;
@@ -171,17 +230,38 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const size = 700;
-    
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    ctx.scale(dpr, dpr);
-    canvas.style.width = size + 'px';
-    canvas.style.height = size + 'px';
+    if (!ctx) return;
 
-    const centerX = size / 2;
-    const centerY = size / 2;
+    const dpr = window.devicePixelRatio || 1;
+    let baseSize = 700;
+    let globeAnimationId = null;
+    
+    function resizeGlobeCanvas() {
+        if (!canvas || !canvas.parentNode) return;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        
+        const displaySize = Math.min(rect.width, rect.height, 700);
+        baseSize = displaySize;
+        canvas.width = displaySize * dpr;
+        canvas.height = displaySize * dpr;
+        ctx.scale(dpr, dpr);
+        canvas.style.width = displaySize + 'px';
+        canvas.style.height = displaySize + 'px';
+    }
+    
+    resizeGlobeCanvas();
+    
+    let globeResizeTimeout = null;
+    window.addEventListener('resize', function() {
+        if (globeResizeTimeout) clearTimeout(globeResizeTimeout);
+        globeResizeTimeout = setTimeout(() => {
+            resizeGlobeCanvas();
+        }, 150);
+    }, { passive: true });
+
+    const getCenterX = () => baseSize / 2;
+    const getCenterY = () => baseSize / 2;
     const radius = 250;
     const segments = 24;
     const rings = 12;
@@ -242,6 +322,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function project(point, distance = 800) {
         const scale = distance / (distance - point.z);
+        const centerX = getCenterX();
+        const centerY = getCenterY();
         return {
             x: centerX + point.x * radius * scale,
             y: centerY + point.y * radius * scale,
@@ -261,7 +343,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let easingFactor = 0.95;
 
     function drawGlobe() {
-        ctx.clearRect(0, 0, size, size);
+        if (!canvas || !canvas.parentNode) {
+            if (globeAnimationId) {
+                cancelAnimationFrame(globeAnimationId);
+                globeAnimationId = null;
+            }
+            return;
+        }
+        ctx.clearRect(0, 0, baseSize, baseSize);
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
         ctx.lineWidth = 1;
@@ -321,6 +410,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function animateGlobe() {
+        if (!canvas || !canvas.parentNode || !ctx) {
+            if (globeAnimationId) {
+                cancelAnimationFrame(globeAnimationId);
+                globeAnimationId = null;
+            }
+            return;
+        }
         if (!isDragging) {
             rotationY += autoRotationY;
             mouseRotationY *= easingFactor;
@@ -329,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (Math.abs(mouseRotationX) < 0.001) mouseRotationX = 0;
         }
         drawGlobe();
-        requestAnimationFrame(animateGlobe);
+        globeAnimationId = requestAnimationFrame(animateGlobe);
     }
 
     function getMousePos(e) {
@@ -385,16 +481,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let animationFrameId = null;
     
     function resizeParticleCanvas() {
+        if (!particleCanvas || !particleCanvas.parentNode || !pCtx) return;
         const rect = particleCanvas.getBoundingClientRect();
-        particleCanvas.width = rect.width * pDpr;
-        particleCanvas.height = rect.height * pDpr;
+        if (rect.width === 0 || rect.height === 0) return;
+        
+        const width = rect.width;
+        const height = rect.height;
+        particleCanvas.width = width * pDpr;
+        particleCanvas.height = height * pDpr;
         pCtx.scale(pDpr, pDpr);
-        particleCanvas.style.width = rect.width + 'px';
-        particleCanvas.style.height = rect.height + 'px';
+        particleCanvas.style.width = width + 'px';
+        particleCanvas.style.height = height + 'px';
     }
     
     resizeParticleCanvas();
-    window.addEventListener('resize', resizeParticleCanvas);
+    
+    let particleResizeTimeout = null;
+    window.addEventListener('resize', function() {
+        if (particleResizeTimeout) clearTimeout(particleResizeTimeout);
+        particleResizeTimeout = setTimeout(() => {
+            resizeParticleCanvas();
+        }, 150);
+    }, { passive: true });
 
     const words = ['BLOCKCHAIN', 'DECENTRALIZED', 'DISTRIBUTED', 'CONSENSUS', 'NETWORK'];
     let currentWordIndex = 0;
@@ -484,6 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateParticles() {
+        if (!particleCanvas || !particleCanvas.parentNode || particles.length === 0) return;
         const centerX = particleCanvas.width / (2 * pDpr);
         const centerY = particleCanvas.height / (2 * pDpr);
         
@@ -570,6 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawParticles() {
+        if (!particleCanvas || !particleCanvas.parentNode || !pCtx || particles.length === 0) return;
         pCtx.clearRect(0, 0, particleCanvas.width / pDpr, particleCanvas.height / pDpr);
         
         particles.forEach(p => {
@@ -586,14 +696,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function animateParticles() {
-        if (!isAnimating) return;
+        if (!isAnimating || !particleCanvas || !particleCanvas.parentNode) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            return;
+        }
         updateParticles();
         drawParticles();
         animationFrameId = requestAnimationFrame(animateParticles);
     }
 
     function startAnimation() {
-        if (isAnimating) return;
+        if (isAnimating || !particleCanvas || !particleCanvas.parentNode) return;
         isAnimating = true;
         if (particles.length === 0) {
             initParticles();
@@ -616,19 +732,22 @@ document.addEventListener('DOMContentLoaded', function() {
         mouseY = (e.clientY - rect.top) * pDpr;
     }, { passive: true });
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                startAnimation();
-            } else {
-                stopAnimation();
-            }
+    let particleObserver = null;
+    if (particleSection) {
+        particleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
+                    startAnimation();
+                } else {
+                    stopAnimation();
+                }
+            });
+        }, {
+            threshold: 0.2,
+            rootMargin: '50px'
         });
-    }, {
-        threshold: 0.2
-    });
-
-    observer.observe(particleSection);
+        particleObserver.observe(particleSection);
+    }
 
     const aboutSection = document.getElementById('about');
     const narrativeContent = document.querySelector('.narrative-content');
@@ -636,12 +755,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aboutSection && narrativeContent) {
         const aboutObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.3 && !narrativeContent.classList.contains('visible')) {
                     narrativeContent.classList.add('visible');
                 }
             });
         }, {
-            threshold: 0.3
+            threshold: 0.3,
+            rootMargin: '50px'
         });
         
         aboutObserver.observe(aboutSection);
