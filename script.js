@@ -564,4 +564,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     observer.observe(particleSection);
+
+    const aboutSection = document.getElementById('about');
+    const narrativeContent = document.querySelector('.narrative-content');
+    
+    if (aboutSection && narrativeContent) {
+        const aboutObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    narrativeContent.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.3
+        });
+        
+        aboutObserver.observe(aboutSection);
+    }
 });
