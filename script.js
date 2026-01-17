@@ -1,3 +1,68 @@
+(function() {
+    const preloader = document.getElementById('preloader');
+    const preloaderWord = document.getElementById('preloader-word');
+    
+    if (!preloader || !preloaderWord) {
+        if (document.body) {
+            document.body.classList.remove('preloader-active');
+        }
+        return;
+    }
+
+    const hasSeenPreloader = sessionStorage.getItem('preloader-complete');
+    
+    if (hasSeenPreloader) {
+        preloader.remove();
+        if (document.body) {
+            document.body.classList.remove('preloader-active');
+        }
+        return;
+    }
+
+    if (document.body) {
+        document.body.classList.add('preloader-active');
+    }
+
+    const words = ['Hello', 'Hola', 'Ciao', 'こんにちは'];
+    let currentWordIndex = 0;
+    let wordInterval;
+
+    function showWord(index) {
+        if (index >= words.length) {
+            setTimeout(() => {
+                preloader.classList.add('exiting');
+                setTimeout(() => {
+                    sessionStorage.setItem('preloader-complete', 'true');
+                    preloader.remove();
+                    if (document.body) {
+                        document.body.classList.remove('preloader-active');
+                    }
+                }, 1000);
+            }, 350);
+            return;
+        }
+
+        preloaderWord.textContent = words[index];
+        preloaderWord.classList.remove('visible');
+        
+        setTimeout(() => {
+            preloaderWord.classList.add('visible');
+            currentWordIndex++;
+            
+            wordInterval = setTimeout(() => {
+                if (currentWordIndex < words.length) {
+                    preloaderWord.classList.remove('visible');
+                    setTimeout(() => showWord(currentWordIndex), 200);
+                } else {
+                    showWord(currentWordIndex);
+                }
+            }, 450);
+        }, 50);
+    }
+
+    showWord(0);
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-links a');
 
