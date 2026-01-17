@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const size = 600;
+    const size = 700;
     
     canvas.width = size * dpr;
     canvas.height = size * dpr;
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const centerX = size / 2;
     const centerY = size / 2;
-    const radius = 220;
+    const radius = 250;
     const segments = 24;
     const rings = 12;
 
@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawGlobe() {
         ctx.clearRect(0, 0, size, size);
 
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1;
 
         const rotatedSphere = sphere.map(ring => 
             ring.map(p => {
@@ -235,18 +235,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        ctx.fillStyle = 'rgba(102, 252, 241, 0.3)';
+        ctx.fillStyle = 'rgba(102, 252, 241, 0.6)';
         glowPoints.forEach(point => {
             let rotated = rotateY(point, rotationY + mouseRotationY);
             rotated = rotateX(rotated, rotationX + mouseRotationX);
             const projected = project(rotated);
             if (projected.z > -100) {
-                const size = 2 * point.intensity * (1 + projected.z / 400);
-                const alpha = 0.15 * point.intensity * (1 + projected.z / 400);
+                const dotSize = 3 * point.intensity * (1 + projected.z / 400);
+                const alpha = 0.4 * point.intensity * (1 + projected.z / 400);
                 ctx.fillStyle = `rgba(102, 252, 241, ${alpha})`;
                 ctx.beginPath();
-                ctx.arc(projected.x, projected.y, size, 0, Math.PI * 2);
+                ctx.arc(projected.x, projected.y, dotSize, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(102, 252, 241, 0.5)';
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
         });
     }
