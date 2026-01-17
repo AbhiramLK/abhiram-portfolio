@@ -23,9 +23,21 @@
 
     <section id="home" class="hero">
         <div class="hero-content">
-            <h1 class="hero-name">Abhiram<br>Chandrasekhar</h1>
-            <p class="hero-tagline">Building decentralized systems<br>and blockchain infrastructure</p>
+            <h1 class="hero-title">
+                <span class="hero-word" style="--delay: 0s">Abhiram</span>
+                <span class="hero-word" style="--delay: 0.2s">Chandrasekhar</span>
+            </h1>
+            <p class="hero-subtitle">
+                Building decentralized systems and blockchain infrastructure
+            </p>
         </div>
+        <button class="hero-cta" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">
+            <span>Scroll to explore</span>
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="cta-arrow">
+                <path d="M11 5V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 12L11 17L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
     </section>
 
     <main>
