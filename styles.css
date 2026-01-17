@@ -1,0 +1,264 @@
+/*
+    styles.css - The Styling File
+    
+    CSS (Cascading Style Sheets) controls how your website looks.
+    It's like the paint, colors, and layout of a house after the structure (HTML) is built.
+    
+    CSS uses "selectors" to target HTML elements and "properties" to style them.
+    For example: "h1 { color: blue; }" means "make all h1 headings blue".
+    
+    Comments in CSS use /* ... */ (different from HTML's <!-- ... -->).
+*/
+
+/* 
+    This is a "reset" - it removes default spacing/padding that browsers add.
+    This gives us a clean starting point to style from scratch.
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /*
+        box-sizing: border-box means that when you set a width,
+        it includes padding and border, which makes sizing easier.
+    */
+}
+
+/* 
+    Styling the <body> tag.
+    This sets the default font and background for the whole page.
+*/
+body {
+    font-family: Arial, sans-serif;
+    /*
+        font-family: if the first font isn't available, use the next one.
+        This is called a "font stack".
+    */
+    line-height: 1.6;
+    /* line-height controls spacing between lines - 1.6 is comfortable reading. */
+    color: #333;
+    /* color sets text color - #333 is a dark gray (close to black). */
+    background-color: #f4f4f4;
+    /* background-color sets the page background - light gray. */
+}
+
+/* Styling the header section */
+header {
+    background-color: #2c3e50;
+    /* background-color: #2c3e50 is a dark blue-gray color. */
+    color: white;
+    padding: 1rem 0;
+    /* padding: 1rem 0 means 1rem top/bottom, 0 left/right. 
+       "rem" is a unit - 1rem = 16px by default. */
+    position: sticky;
+    top: 0;
+    /*
+        position: sticky means the header stays at the top when scrolling.
+        It "sticks" to the top of the viewport.
+    */
+}
+
+/* Styling the navigation inside the header */
+nav {
+    max-width: 1200px;
+    /* max-width prevents content from being too wide on large screens. */
+    margin: 0 auto;
+    /* margin: 0 auto centers the content horizontally. */
+    padding: 0 20px;
+    display: flex;
+    /* display: flex arranges children horizontally (side by side). */
+    justify-content: space-between;
+    /* justify-content: space-between puts space between items. */
+    align-items: center;
+    /* align-items: center vertically centers items. */
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Styling the navigation links list */
+.nav-links {
+    list-style: none;
+    /* list-style: none removes bullet points from the list. */
+    display: flex;
+    gap: 2rem;
+    /* gap adds space between flex items. */
+}
+
+/* Styling the links inside navigation */
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    /* text-decoration: none removes the underline from links. */
+    transition: color 0.3s;
+    /* transition makes color changes smooth when hovering. */
+}
+
+.nav-links a:hover {
+    /* :hover is a "pseudo-class" - styles apply when you hover over the element. */
+    color: #3498db;
+    /* Changes link color to blue on hover. */
+}
+
+/* Styling the main content area */
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+}
+
+/* Styling each section */
+section {
+    padding: 4rem 0;
+    /* padding: 4rem 0 adds vertical space around sections. */
+    min-height: 50vh;
+    /*
+        min-height: 50vh means each section is at least 50% of
+        the viewport height (vh = viewport height).
+    */
+}
+
+/* Styling the home section specifically */
+#home {
+    text-align: center;
+    /* text-align: center centers text horizontally. */
+    background-color: white;
+    padding: 6rem 2rem;
+}
+
+#home h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: #666;
+    /* #666 is a medium gray. */
+}
+
+/* Styling section headings (h2) */
+section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    text-align: center;
+}
+
+/* Styling paragraphs inside sections */
+section p {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* Styling the about section */
+#about {
+    background-color: white;
+    margin: 2rem 0;
+    padding: 4rem 2rem;
+    border-radius: 8px;
+    /* border-radius rounds the corners. */
+}
+
+/* Styling the projects section */
+#projects {
+    background-color: white;
+    margin: 2rem 0;
+    padding: 4rem 2rem;
+    border-radius: 8px;
+}
+
+.projects-grid {
+    display: grid;
+    /* display: grid creates a grid layout (like a table). */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /*
+        grid-template-columns creates columns.
+        repeat(auto-fit, minmax(300px, 1fr)) means:
+        - Create as many columns as fit
+        - Each column is at least 300px wide
+        - If there's extra space, make columns equal width (1fr)
+        This makes it responsive - columns adjust based on screen size.
+    */
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.project-card {
+    background-color: #f8f9fa;
+    /* Light gray background. */
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    /* border adds a subtle border around the card. */
+    transition: transform 0.3s, box-shadow 0.3s;
+    /* Smooth animation when hovering. */
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    /*
+        transform: translateY moves the element up by 5px.
+        This creates a "lift" effect on hover.
+    */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    /* box-shadow creates a shadow beneath the card. */
+}
+
+.project-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+/* Styling the contact section */
+#contact {
+    background-color: white;
+    margin: 2rem 0;
+    padding: 4rem 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Styling the footer */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 4rem;
+}
+
+/* 
+    This is a "media query" - it applies styles only when
+    the screen is 768px wide or less (phones and tablets).
+    This makes the website "responsive" - it adapts to different screen sizes.
+*/
+@media (max-width: 768px) {
+    /*
+        @media is how you make responsive designs.
+        The styles inside only apply when the condition is met.
+    */
+    nav {
+        flex-direction: column;
+        /* flex-direction: column stacks items vertically. */
+        gap: 1rem;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    #home h1 {
+        font-size: 2rem;
+        /* Smaller heading on mobile. */
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        /* Single column on mobile. */
+    }
+}

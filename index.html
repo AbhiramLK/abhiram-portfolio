@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--
+    index.html - The Main File
+    
+    This is an HTML file. HTML (HyperText Markup Language) is the language
+    that structures the content of web pages. Think of it as the skeleton
+    of your website - it defines what content appears and how it's organized.
+    
+    The <!DOCTYPE html> at the top tells the browser "this is an HTML document".
+    Everything else is wrapped in HTML tags, which are like labels that tell
+    the browser what each part is (like a heading, paragraph, link, etc.).
+-->
+<html lang="en">
+<!--
+    <html> is the root tag - everything goes inside this.
+    lang="en" tells the browser the page is in English.
+-->
+<head>
+    <!--
+        <head> contains information about the page that users don't see directly,
+        but browsers and search engines use. Like the page title, character encoding,
+        and links to CSS files.
+    -->
+    <meta charset="UTF-8">
+    <!--
+        charset tells the browser how to interpret characters.
+        UTF-8 includes most characters from all languages.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+        viewport meta tag makes the page responsive - it works well on
+        phones, tablets, and computers by adjusting to the screen size.
+    -->
+    <title>Portfolio - Abhiram</title>
+    <!--
+        <title> shows up in the browser tab and when you bookmark the page.
+    -->
+    <link rel="stylesheet" href="styles.css">
+    <!--
+        This links to the CSS file that styles this page.
+        CSS controls colors, fonts, spacing, layout - how things look.
+    -->
+</head>
+<body>
+    <!--
+        <body> contains all the visible content that users see on the page.
+    -->
+    <header>
+        <!--
+            <header> is a semantic tag - it represents the top section
+            of a page, typically containing a logo and navigation.
+        -->
+        <nav>
+            <!--
+                <nav> represents navigation links (menu items).
+            -->
+            <div class="logo">Portfolio</div>
+            <ul class="nav-links">
+                <!--
+                    <ul> is an unordered list (bullet points).
+                    <li> are list items.
+                -->
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!--
+            <main> represents the main content of the page.
+        -->
+        <section id="home">
+            <!--
+                <section> groups related content together.
+                id="home" lets us link directly to this section (see nav links above).
+            -->
+            <h1>Hi, I'm Abhiram</h1>
+            <!--
+                <h1> is the main heading (largest heading).
+                There are also h2, h3, h4, h5, h6 for smaller headings.
+            -->
+            <p class="subtitle">Welcome to my portfolio</p>
+            <!--
+                <p> is a paragraph tag for regular text.
+            -->
+        </section>
+
+        <section id="about">
+            <h2>About Me</h2>
+            <!--
+                <h2> is a subheading (smaller than h1).
+            -->
+            <p>This is where you can write about yourself, your skills, and what you do.</p>
+            <p>Replace this with your own information!</p>
+        </section>
+
+        <section id="projects">
+            <h2>Projects</h2>
+            <div class="projects-grid">
+                <!--
+                    <div> is a generic container - it doesn't mean anything specific,
+                    but it helps organize and style content. Think of it as an
+                    invisible box you can put things in.
+                -->
+                <div class="project-card">
+                    <h3>Project 1</h3>
+                    <p>Description of your first project goes here.</p>
+                </div>
+                <div class="project-card">
+                    <h3>Project 2</h3>
+                    <p>Description of your second project goes here.</p>
+                </div>
+                <div class="project-card">
+                    <h3>Project 3</h3>
+                    <p>Description of your third project goes here.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact</h2>
+            <p>You can add your email, social media links, or a contact form here.</p>
+        </section>
+    </main>
+
+    <footer>
+        <!--
+            <footer> represents the bottom section of a page,
+            often containing copyright info or links.
+        -->
+        <p>&copy; 2026 Abhiram. All rights reserved.</p>
+        <!--
+            &copy; is an HTML entity - it displays as the copyright symbol ©.
+        -->
+    </footer>
+
+    <script src="script.js"></script>
+    <!--
+        This links to the JavaScript file that adds interactivity to the page.
+        JavaScript can respond to clicks, scrolls, and other user actions.
+    -->
+</body>
+</html>
