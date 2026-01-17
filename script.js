@@ -131,10 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
     duplicateContent(topRow, 12);
     duplicateContent(bottomRow, 12);
 
-    setTimeout(() => {
-        calculateContentWidths();
-    }, 100);
-
     let lastScrollY = window.scrollY;
     let velocity = { top: 0, bottom: 0 };
     let position = { top: 0, bottom: 0 };
@@ -142,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let scrollAnimationId = null;
     let topContentWidth = 0;
     let bottomContentWidth = 0;
+    let animationStarted = false;
 
     function calculateContentWidths() {
         if (!topRow || !bottomRow) return;
@@ -150,6 +147,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     calculateContentWidths();
+    
+    setTimeout(() => {
+        calculateContentWidths();
+        if (!animationStarted) {
+            animationStarted = true;
+            velocity.top = 0.5;
+            velocity.bottom = -0.45;
+            animateScroll();
+        }
+    }, 100);
     
     let resizeTimeout = null;
     window.addEventListener('resize', function() {
@@ -220,11 +227,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    velocity.top = 0.5;
-    velocity.bottom = -0.45;
-
-    animateScroll();
 
     const canvas = document.getElementById('globe-canvas');
     if (!canvas) return;
@@ -495,6 +497,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
+    
     tempCanvas.width = 2000;
     tempCanvas.height = 400;
     tempCtx.fillStyle = 'white';
@@ -508,13 +512,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const particles = [];
     const step = 5;
 
+    const scaleX = CANVAS_WIDTH / tempCanvas.width;
+    const scaleY = CANVAS_HEIGHT / tempCanvas.height;
+    const scale = Math.min(scaleX, scaleY) * 0.8;
+
     for (let y = 0; y < tempCanvas.height; y += step) {
         for (let x = 0; x < tempCanvas.width; x += step) {
             const index = (y * tempCanvas.width + x) * 4;
             if (data[index + 3] > 128) {
+                const offsetX = (x - tempCanvas.width / 2) * scale;
+                const offsetY = (y - tempCanvas.height / 2) * scale;
                 particles.push({
-                    x: centerX + (x - tempCanvas.width / 2),
-                    y: centerY + (y - tempCanvas.height / 2)
+                    x: centerX + offsetX,
+                    y: centerY + offsetY
                 });
             }
         }
@@ -588,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const maxScrambles = 8;
         
         const scrambleInterval = setInterval(() => {
-            if (resolveIndex >= textChars.length) {
+            if (resolveIndex >= textChars.length || scrambleCount >= maxScrambles) {
                 clearInterval(scrambleInterval);
                 return;
             }
