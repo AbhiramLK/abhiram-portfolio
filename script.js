@@ -307,4 +307,203 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     animateGlobe();
+
+    const particleCanvas = document.getElementById('particle-text-canvas');
+    if (!particleCanvas) return;
+
+    const pCtx = particleCanvas.getContext('2d');
+    const pDpr = window.devicePixelRatio || 1;
+    
+    function resizeParticleCanvas() {
+        const rect = particleCanvas.getBoundingClientRect();
+        particleCanvas.width = rect.width * pDpr;
+        particleCanvas.height = rect.height * pDpr;
+        pCtx.scale(pDpr, pDpr);
+        particleCanvas.style.width = rect.width + 'px';
+        particleCanvas.style.height = rect.height + 'px';
+    }
+    
+    resizeParticleCanvas();
+    window.addEventListener('resize', resizeParticleCanvas);
+
+    const words = ['BLOCKCHAIN', 'DECENTRALIZED', 'DISTRIBUTED', 'CONSENSUS', 'NETWORK'];
+    let currentWordIndex = 0;
+    let particles = [];
+    let targetParticles = [];
+    let transitionProgress = 0;
+    let state = 'assemble';
+    let mouseX = 0;
+    let mouseY = 0;
+
+    function getTextParticles(text, fontSize = 120) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = 2000;
+        tempCanvas.height = 400;
+        tempCtx.fillStyle = 'white';
+        tempCtx.font = `bold ${fontSize}px Inter, sans-serif`;
+        tempCtx.textAlign = 'center';
+        tempCtx.textBaseline = 'middle';
+        tempCtx.fillText(text, tempCanvas.width / 2, tempCanvas.height / 2);
+
+        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const data = imageData.data;
+        const points = [];
+        const step = 4;
+
+        for (let y = 0; y < tempCanvas.height; y += step) {
+            for (let x = 0; x < tempCanvas.width; x += step) {
+                const index = (y * tempCanvas.width + x) * 4;
+                if (data[index + 3] > 128) {
+                    points.push({
+                        x: x - tempCanvas.width / 2,
+                        y: y - tempCanvas.height / 2,
+                        baseX: x - tempCanvas.width / 2,
+                        baseY: y - tempCanvas.height / 2,
+                        vx: 0,
+                        vy: 0,
+                        opacity: 1
+                    });
+                }
+            }
+        }
+
+        return points;
+    }
+
+    function initParticles() {
+        const word = words[currentWordIndex];
+        targetParticles = getTextParticles(word);
+        
+        if (particles.length === 0) {
+            particles = targetParticles.map(p => ({
+                x: (Math.random() - 0.5) * particleCanvas.width,
+                y: (Math.random() - 0.5) * particleCanvas.height,
+                baseX: p.baseX,
+                baseY: p.baseY,
+                vx: 0,
+                vy: 0,
+                opacity: 0
+            }));
+            state = 'assemble';
+            transitionProgress = 0;
+        }
+    }
+
+    function updateParticles() {
+        const centerX = particleCanvas.width / (2 * pDpr);
+        const centerY = particleCanvas.height / (2 * pDpr);
+        
+        if (state === 'assemble') {
+            transitionProgress += 0.008;
+            if (transitionProgress >= 1) {
+                transitionProgress = 1;
+                state = 'hold';
+            }
+            
+            particles.forEach((p, i) => {
+                const target = targetParticles[i] || { baseX: 0, baseY: 0 };
+                const dx = (target.baseX + centerX) - p.x;
+                const dy = (target.baseY + centerY) - p.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                p.vx += dx * 0.05 * transitionProgress;
+                p.vy += dy * 0.05 * transitionProgress;
+                p.vx *= 0.92;
+                p.vy *= 0.92;
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                p.opacity = Math.min(1, p.opacity + 0.02);
+            });
+        } else if (state === 'hold') {
+            transitionProgress += 0.001;
+            if (transitionProgress > 3) {
+                state = 'dissolve';
+                transitionProgress = 0;
+            }
+            
+            particles.forEach((p, i) => {
+                const target = targetParticles[i] || { baseX: 0, baseY: 0 };
+                const targetX = target.baseX + centerX;
+                const targetY = target.baseY + centerY;
+                
+                const dx = targetX - p.x;
+                const dy = targetY - p.y;
+                p.x += dx * 0.1;
+                p.y += dy * 0.1;
+                
+                const mouseDx = mouseX - p.x;
+                const mouseDy = mouseY - p.y;
+                const mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+                if (mouseDist < 150) {
+                    const force = (150 - mouseDist) / 150 * 0.3;
+                    p.vx -= mouseDx * force * 0.001;
+                    p.vy -= mouseDy * force * 0.001;
+                }
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.95;
+                p.vy *= 0.95;
+            });
+        } else if (state === 'dissolve') {
+            transitionProgress += 0.01;
+            if (transitionProgress >= 1) {
+                currentWordIndex = (currentWordIndex + 1) % words.length;
+                particles = particles.map(p => ({
+                    x: p.x,
+                    y: p.y,
+                    baseX: (Math.random() - 0.5) * particleCanvas.width,
+                    baseY: (Math.random() - 0.5) * particleCanvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    opacity: p.opacity
+                }));
+                initParticles();
+                return;
+            }
+            
+            particles.forEach(p => {
+                p.vx += (Math.random() - 0.5) * 0.5;
+                p.vy += (Math.random() - 0.5) * 0.5;
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.opacity = Math.max(0, p.opacity - 0.015);
+            });
+        }
+    }
+
+    function drawParticles() {
+        pCtx.clearRect(0, 0, particleCanvas.width / pDpr, particleCanvas.height / pDpr);
+        
+        particles.forEach(p => {
+            if (p.opacity > 0.01) {
+                const useAccent = Math.random() > 0.85;
+                const color = useAccent ? 'rgba(102, 252, 241, ' + (p.opacity * 0.4) + ')' : 'rgba(255, 255, 255, ' + (p.opacity * 0.3) + ')';
+                pCtx.fillStyle = color;
+                const size = useAccent ? 2.5 : 1.5;
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, size, 0, Math.PI * 2);
+                pCtx.fill();
+            }
+        });
+    }
+
+    function animateParticles() {
+        updateParticles();
+        drawParticles();
+        requestAnimationFrame(animateParticles);
+    }
+
+    particleCanvas.addEventListener('mousemove', function(e) {
+        const rect = particleCanvas.getBoundingClientRect();
+        mouseX = (e.clientX - rect.left) * pDpr;
+        mouseY = (e.clientY - rect.top) * pDpr;
+    }, { passive: true });
+
+    initParticles();
+    animateParticles();
 });
