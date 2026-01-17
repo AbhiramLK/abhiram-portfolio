@@ -476,17 +476,27 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!particleSection) return;
 
     const pCtx = particleCanvas.getContext('2d');
+    if (!pCtx) return;
+    
     const pDpr = window.devicePixelRatio || 1;
     let isAnimating = false;
     let animationFrameId = null;
+    let canvasWidth = 0;
+    let canvasHeight = 0;
     
     function resizeParticleCanvas() {
         if (!particleCanvas || !particleCanvas.parentNode || !pCtx) return;
         const rect = particleCanvas.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return;
+        if (rect.width === 0 || rect.height === 0) {
+            requestAnimationFrame(resizeParticleCanvas);
+            return;
+        }
         
         const width = rect.width;
         const height = rect.height;
+        canvasWidth = width;
+        canvasHeight = height;
+        
         particleCanvas.width = width * pDpr;
         particleCanvas.height = height * pDpr;
         pCtx.scale(pDpr, pDpr);
@@ -512,10 +522,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let state = 'assemble';
     let mouseX = 0;
     let mouseY = 0;
+    let isInitialized = false;
 
     function getTextParticles(text, fontSize = 120) {
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
+        if (!tempCtx) return [];
+        
         tempCanvas.width = 2000;
         tempCanvas.height = 400;
         tempCtx.fillStyle = 'white';
@@ -550,38 +563,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initParticles() {
+        if (!particleCanvas || canvasWidth === 0 || canvasHeight === 0) {
+            if (canvasWidth === 0 || canvasHeight === 0) {
+                resizeParticleCanvas();
+                setTimeout(() => initParticles(), 50);
+            }
+            return;
+        }
+        
         const word = words[currentWordIndex];
         targetParticles = getTextParticles(word);
+        if (targetParticles.length === 0) return;
         
-        if (particles.length === 0) {
-            particles = targetParticles.map(p => ({
-                x: (Math.random() - 0.5) * particleCanvas.width,
-                y: (Math.random() - 0.5) * particleCanvas.height,
-                baseX: p.baseX,
-                baseY: p.baseY,
-                vx: 0,
-                vy: 0,
-                opacity: 0
-            }));
-            state = 'assemble';
-            transitionProgress = 0;
-        } else {
-            while (particles.length < targetParticles.length) {
-                particles.push({
-                    x: (Math.random() - 0.5) * particleCanvas.width,
-                    y: (Math.random() - 0.5) * particleCanvas.height,
-                    baseX: 0,
-                    baseY: 0,
+        if (!isInitialized || particles.length === 0) {
+            const startX = canvasWidth / 2;
+            const startY = canvasHeight / 2;
+            
+            particles = targetParticles.map((p, i) => {
+                const angle = (i / targetParticles.length) * Math.PI * 2;
+                const radius = Math.min(canvasWidth, canvasHeight) * 0.3;
+                return {
+                    x: startX + Math.cos(angle) * radius * (0.5 + Math.random() * 0.5),
+                    y: startY + Math.sin(angle) * radius * (0.5 + Math.random() * 0.5),
+                    baseX: p.baseX,
+                    baseY: p.baseY,
                     vx: 0,
                     vy: 0,
                     opacity: 0
-                });
+                };
+            });
+            isInitialized = true;
+            state = 'assemble';
+            transitionProgress = 0;
+        } else {
+            if (particles.length !== targetParticles.length) {
+                if (particles.length < targetParticles.length) {
+                    const startX = canvasWidth / 2;
+                    const startY = canvasHeight / 2;
+                    while (particles.length < targetParticles.length) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = Math.min(canvasWidth, canvasHeight) * 0.3;
+                        particles.push({
+                            x: startX + Math.cos(angle) * radius,
+                            y: startY + Math.sin(angle) * radius,
+                            baseX: 0,
+                            baseY: 0,
+                            vx: 0,
+                            vy: 0,
+                            opacity: 0
+                        });
+                    }
+                } else {
+                    particles = particles.slice(0, targetParticles.length);
+                }
             }
-            particles = particles.slice(0, targetParticles.length);
             
             particles.forEach((p, i) => {
-                p.baseX = targetParticles[i].baseX;
-                p.baseY = targetParticles[i].baseY;
+                if (targetParticles[i]) {
+                    p.baseX = targetParticles[i].baseX;
+                    p.baseY = targetParticles[i].baseY;
+                }
                 p.vx = 0;
                 p.vy = 0;
             });
@@ -592,9 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateParticles() {
-        if (!particleCanvas || !particleCanvas.parentNode || particles.length === 0) return;
-        const centerX = particleCanvas.width / (2 * pDpr);
-        const centerY = particleCanvas.height / (2 * pDpr);
+        if (!particleCanvas || !particleCanvas.parentNode || particles.length === 0 || targetParticles.length === 0) return;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
         
         if (state === 'assemble') {
             transitionProgress += 0.015;
@@ -679,13 +720,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawParticles() {
-        if (!particleCanvas || !particleCanvas.parentNode || !pCtx || particles.length === 0) return;
-        pCtx.clearRect(0, 0, particleCanvas.width / pDpr, particleCanvas.height / pDpr);
+        if (!particleCanvas || !particleCanvas.parentNode || !pCtx || particles.length === 0 || canvasWidth === 0) return;
+        pCtx.clearRect(0, 0, canvasWidth, canvasHeight);
         
-        particles.forEach(p => {
+        particles.forEach((p, i) => {
             if (p.opacity > 0.01) {
-                const useAccent = Math.random() > 0.85;
-                const color = useAccent ? 'rgba(102, 252, 241, ' + (p.opacity * 0.4) + ')' : 'rgba(255, 255, 255, ' + (p.opacity * 0.3) + ')';
+                const useAccent = (i % 7 === 0);
+                const color = useAccent ? `rgba(102, 252, 241, ${p.opacity * 0.4})` : `rgba(255, 255, 255, ${p.opacity * 0.3})`;
                 pCtx.fillStyle = color;
                 const size = useAccent ? 2.5 : 1.5;
                 pCtx.beginPath();
@@ -710,44 +751,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function startAnimation() {
         if (isAnimating || !particleCanvas || !particleCanvas.parentNode) return;
-        isAnimating = true;
-        if (particles.length === 0) {
+        
+        if (!isInitialized || particles.length === 0 || targetParticles.length === 0) {
             initParticles();
+            if (particles.length === 0 || targetParticles.length === 0) {
+                setTimeout(() => startAnimation(), 100);
+                return;
+            }
         }
+        
+        isAnimating = true;
         animateParticles();
     }
 
-    function stopAnimation() {
-        isAnimating = false;
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
+    particleCanvas.addEventListener('mousemove', function(e) {
+        const rect = particleCanvas.getBoundingClientRect();
+        mouseX = (e.clientX - rect.left);
+        mouseY = (e.clientY - rect.top);
+    }, { passive: true });
+
+    function initializeParticleSystem() {
+        if (canvasWidth === 0 || canvasHeight === 0) {
+            resizeParticleCanvas();
+            setTimeout(() => initializeParticleSystem(), 50);
+            return;
+        }
+        
+        if (!isInitialized || particles.length === 0) {
+            initParticles();
+        }
+        
+        if (particles.length > 0 && targetParticles.length > 0 && !isAnimating) {
+            startAnimation();
+        } else if (particles.length === 0 || targetParticles.length === 0) {
+            setTimeout(() => initializeParticleSystem(), 100);
         }
     }
 
-    particleCanvas.addEventListener('mousemove', function(e) {
-        if (!isAnimating) return;
-        const rect = particleCanvas.getBoundingClientRect();
-        mouseX = (e.clientX - rect.left) * pDpr;
-        mouseY = (e.clientY - rect.top) * pDpr;
-    }, { passive: true });
+    setTimeout(() => {
+        initializeParticleSystem();
+    }, 300);
 
-    let particleObserver = null;
-    if (particleSection) {
-        particleObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
-                    startAnimation();
-                } else {
-                    stopAnimation();
-                }
-            });
-        }, {
-            threshold: 0.2,
-            rootMargin: '50px'
-        });
-        particleObserver.observe(particleSection);
-    }
+    window.addEventListener('load', () => {
+        setTimeout(() => initializeParticleSystem(), 200);
+    });
 
     const aboutSection = document.getElementById('about');
     const narrativeContent = document.querySelector('.narrative-content');
