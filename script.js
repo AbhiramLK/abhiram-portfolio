@@ -1,102 +1,104 @@
-/*
-    script.js - The JavaScript File
-    
-    JavaScript adds interactivity to your website. While HTML structures content
-    and CSS styles it, JavaScript makes things happen when users interact with
-    the page (like clicking buttons, scrolling, or submitting forms).
-    
-    This file is minimal for now - just smooth scrolling for navigation links.
-    
-    Comments in JavaScript use // for single lines or /* ... */ for blocks.
-*/
-
-// Wait for the page to fully load before running JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    /*
-        document.addEventListener listens for events.
-        'DOMContentLoaded' means "when the HTML is fully loaded".
-        This ensures all HTML elements exist before we try to use them.
-        
-        function() { ... } is called a "callback function" - it runs
-        when the event happens.
-    */
-
-    // Get all navigation links
     const navLinks = document.querySelectorAll('.nav-links a');
-    /*
-        document.querySelectorAll finds all elements matching the selector.
-        '.nav-links a' means "all <a> tags inside elements with class 'nav-links'".
-        
-        const creates a variable that can't be changed after it's set.
-    */
 
-    // Add a click event listener to each navigation link
     navLinks.forEach(function(link) {
-        /*
-            forEach loops through each link in the navLinks collection.
-            For each link, we run the function inside.
-        */
         link.addEventListener('click', function(e) {
-            /*
-                e is the event object - it contains information about the click.
-            */
-            // Get the href attribute (like "#home" or "#about")
             const href = link.getAttribute('href');
-            /*
-                getAttribute gets an attribute value from the HTML element.
-                For example, if the HTML is <a href="#home">, this gets "#home".
-            */
 
-            // Only do smooth scrolling if it's a hash link (starts with #)
             if (href.startsWith('#')) {
                 e.preventDefault();
-                /*
-                    preventDefault() stops the default behavior.
-                    By default, clicking a # link jumps instantly.
-                    We're preventing that so we can scroll smoothly instead.
-                */
 
-                // Get the target section element
                 const targetId = href.substring(1);
-                /*
-                    substring(1) removes the '#' character.
-                    "#home" becomes "home".
-                */
                 const targetSection = document.getElementById(targetId);
-                /*
-                    document.getElementById finds an element by its id.
-                    For example, document.getElementById('home') finds
-                    the element with id="home" in the HTML.
-                */
 
-                // If the target section exists, scroll to it smoothly
                 if (targetSection) {
                     targetSection.scrollIntoView({
                         behavior: 'smooth',
-                        /*
-                            behavior: 'smooth' makes the scroll animated
-                            instead of an instant jump.
-                        */
                         block: 'start'
-                        /*
-                            block: 'start' aligns the section to the top
-                            of the viewport when scrolling.
-                        */
                     });
                 }
             }
         });
     });
-});
 
-/*
-    That's it! This is a minimal JavaScript file that just makes
-    the navigation links scroll smoothly to sections instead of
-    jumping instantly. As you learn more, you can add:
-    
-    - Animations
-    - Form validation
-    - Interactive features
-    - Dynamic content loading
-    - And much more!
-*/
+    const scrollingSection = document.querySelector('.scrolling-text-section');
+    if (!scrollingSection) return;
+
+    const topRow = document.querySelector('.scrolling-row-top .scrolling-content');
+    const bottomRow = document.querySelector('.scrolling-row-bottom .scrolling-content');
+
+    if (!topRow || !bottomRow) return;
+
+    function duplicateContent(element, times = 8) {
+        const originalHTML = element.innerHTML;
+        for (let i = 0; i < times; i++) {
+            element.innerHTML += originalHTML;
+        }
+    }
+
+    duplicateContent(topRow, 12);
+    duplicateContent(bottomRow, 12);
+
+    let lastScrollY = window.scrollY;
+    let velocity = { top: 0, bottom: 0 };
+    let position = { top: 0, bottom: 0 };
+    let inertia = 0.92;
+
+    const topContentWidth = topRow.scrollWidth / 2;
+    const bottomContentWidth = bottomRow.scrollWidth / 2;
+
+    function animate() {
+        velocity.top *= inertia;
+        velocity.bottom *= inertia;
+
+        position.top += velocity.top;
+        position.bottom += velocity.bottom;
+
+        if (position.top >= topContentWidth) {
+            position.top -= topContentWidth;
+        } else if (position.top <= -topContentWidth) {
+            position.top += topContentWidth;
+        }
+
+        if (position.bottom >= bottomContentWidth) {
+            position.bottom -= bottomContentWidth;
+        } else if (position.bottom <= -bottomContentWidth) {
+            position.bottom += bottomContentWidth;
+        }
+
+        topRow.style.transform = `translateX(-${position.top}px)`;
+        bottomRow.style.transform = `translateX(-${position.bottom}px)`;
+
+        requestAnimationFrame(animate);
+    }
+
+    let ticking = false;
+    function handleScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                const scrollDelta = currentScrollY - lastScrollY;
+                const scrollSpeed = Math.abs(scrollDelta);
+                const direction = scrollDelta > 0 ? 1 : -1;
+
+                const speedFactor = Math.min(scrollSpeed * 0.8, 3);
+
+                if (Math.abs(scrollDelta) > 0.1) {
+                    velocity.top = direction * speedFactor;
+                    velocity.bottom = -direction * speedFactor * 0.9;
+                }
+
+                lastScrollY = currentScrollY;
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    velocity.top = 0.5;
+    velocity.bottom = -0.45;
+
+    animate();
+});
