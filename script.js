@@ -392,6 +392,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }));
             state = 'assemble';
             transitionProgress = 0;
+        } else {
+            while (particles.length < targetParticles.length) {
+                particles.push({
+                    x: (Math.random() - 0.5) * particleCanvas.width,
+                    y: (Math.random() - 0.5) * particleCanvas.height,
+                    baseX: 0,
+                    baseY: 0,
+                    vx: 0,
+                    vy: 0,
+                    opacity: 0
+                });
+            }
+            particles = particles.slice(0, targetParticles.length);
+            
+            particles.forEach((p, i) => {
+                p.baseX = targetParticles[i].baseX;
+                p.baseY = targetParticles[i].baseY;
+                p.vx = 0;
+                p.vy = 0;
+            });
+            
+            state = 'assemble';
+            transitionProgress = 0;
         }
     }
 
@@ -459,8 +482,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 particles = particles.map(p => ({
                     x: p.x,
                     y: p.y,
-                    baseX: (Math.random() - 0.5) * particleCanvas.width,
-                    baseY: (Math.random() - 0.5) * particleCanvas.height,
+                    baseX: 0,
+                    baseY: 0,
                     vx: (Math.random() - 0.5) * 2.5,
                     vy: (Math.random() - 0.5) * 2.5,
                     opacity: p.opacity
