@@ -1,402 +1,230 @@
-/*
-    styles.css - The Styling File
-    
-    CSS (Cascading Style Sheets) controls how your website looks.
-    It's like the paint, colors, and layout of a house after the structure (HTML) is built.
-    
-    CSS uses "selectors" to target HTML elements and "properties" to style them.
-    For example: "h1 { color: blue; }" means "make all h1 headings blue".
-    
-    Comments in CSS use /* ... */ syntax (different from HTML's <!-- ... -->).
-*/
-
-/* 
-    This is a "reset" - it removes default spacing/padding that browsers add.
-    This gives us a clean starting point to style from scratch.
-*/
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /*
-        box-sizing: border-box means that when you set a width,
-        it includes padding and border, which makes sizing easier.
-    */
 }
 
-/* 
-    Styling the <body> tag.
-    This sets the default font and background for the whole page.
-*/
 body {
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    /*
-        font-family: Poppins is the primary font (loaded from Google Fonts).
-        If Poppins fails to load, it falls back to system fonts.
-        This creates a clean, professional look.
-    */
-    line-height: 1.7;
-    /* line-height: 1.7 improves readability on dark backgrounds. */
-    color: #e0e0e0;
-    /* color: #e0e0e0 is a light gray that's easy on the eyes for dark backgrounds. */
-    background-color: #0a0a0a;
-    /* background-color: #0a0a0a is near-black, OLED-friendly (saves battery on OLED screens). */
+    line-height: 1.6;
+    color: #d4d4d4;
+    background-color: #000000;
     font-weight: 400;
-    /* font-weight: 400 is the normal/regular weight for body text. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Styling the header section */
 header {
-    background-color: rgba(10, 10, 10, 0.95);
-    /* background-color: rgba(10, 10, 10, 0.95) is dark with slight transparency.
-       This creates a subtle blur effect and maintains the OLED-friendly dark theme. */
+    background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 1.5rem 0;
-    /* padding: 1.5rem 0 gives more breathing room in the header. */
+    padding: 1.25rem 0;
     position: sticky;
     top: 0;
-    /*
-        position: sticky means the header stays at the top when scrolling.
-        It "sticks" to the top of the viewport.
-    */
-    backdrop-filter: blur(10px);
-    /* backdrop-filter: blur(10px) creates a modern glass-like effect behind the header. */
-    border-bottom: 1px solid rgba(102, 252, 241, 0.1);
-    /* border-bottom adds a subtle accent line at the bottom of the header. */
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(102, 252, 241, 0.08);
     z-index: 1000;
-    /* z-index: 1000 ensures the header stays above other content when scrolling. */
 }
 
-/* Styling the navigation inside the header */
 nav {
     max-width: 1200px;
-    /* max-width prevents content from being too wide on large screens. */
     margin: 0 auto;
-    /* margin: 0 auto centers the content horizontally. */
-    padding: 0 20px;
+    padding: 0 2rem;
     display: flex;
-    /* display: flex arranges children horizontally (side by side). */
     justify-content: space-between;
-    /* justify-content: space-between puts space between items. */
     align-items: center;
-    /* align-items: center vertically centers items. */
 }
 
 .logo {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    /* font-weight: 600 is semi-bold, making the logo stand out without being too heavy. */
     color: #66fcf1;
-    /* color: #66fcf1 is the accent color - this makes the logo pop. */
-    letter-spacing: -0.5px;
-    /* letter-spacing: -0.5px tightens the spacing slightly for a modern look. */
+    letter-spacing: -0.3px;
 }
 
-/* Styling the navigation links list */
 .nav-links {
     list-style: none;
-    /* list-style: none removes bullet points from the list. */
     display: flex;
-    gap: 2rem;
-    /* gap adds space between flex items. */
+    gap: 2.5rem;
 }
 
-/* Styling the links inside navigation */
 .nav-links a {
-    color: #e0e0e0;
-    /* color: #e0e0e0 is light gray for good contrast on dark background. */
+    color: #d4d4d4;
     text-decoration: none;
-    /* text-decoration: none removes the underline from links. */
-    font-weight: 500;
-    /* font-weight: 500 is medium weight, making links stand out slightly. */
-    transition: color 0.3s ease, transform 0.2s ease;
-    /* transition makes color and transform changes smooth when hovering. */
+    font-weight: 400;
+    font-size: 0.9375rem;
+    transition: color 0.25s ease;
     position: relative;
-    /* position: relative allows us to position pseudo-elements (like the underline). */
+    letter-spacing: 0.2px;
 }
 
 .nav-links a::after {
-    /* ::after creates a pseudo-element after the link (invisible by default). */
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: -4px;
     left: 0;
     width: 0;
-    height: 2px;
+    height: 1px;
     background-color: #66fcf1;
-    /* background-color uses our accent color. */
-    transition: width 0.3s ease;
-    /* transition animates the width when hovering. */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-links a:hover {
-    /* :hover is a "pseudo-class" - styles apply when you hover over the element. */
     color: #66fcf1;
-    /* Changes link color to the accent color on hover. */
-    transform: translateY(-2px);
-    /* transform: translateY(-2px) slightly lifts the link on hover. */
 }
 
 .nav-links a:hover::after {
-    /* When hovering, the ::after element (underline) expands. */
     width: 100%;
-    /* width: 100% makes the underline span the full width of the link. */
 }
 
-/* Styling the main content area */
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-    /* padding: 0 2rem gives consistent horizontal spacing. */
 }
 
-/* Styling each section */
 section {
-    padding: 6rem 0;
-    /* padding: 6rem 0 increases vertical spacing for better breathing room. */
-    min-height: 60vh;
-    /*
-        min-height: 60vh means each section is at least 60% of
-        the viewport height (vh = viewport height).
-        This creates more spacious sections.
-    */
+    padding: 8rem 0;
 }
 
-/* Styling the home section specifically - This is the hero section */
 #home.hero {
-    /* Hero section is now outside <main> for better semantic structure. */
     text-align: center;
-    /* text-align: center centers text horizontally. */
     background-color: transparent;
-    /* background-color: transparent lets the dark body background show through. */
     color: white;
-    /* color: white makes all text white so it's visible on the dark background. */
-    padding: 10rem 2rem;
-    /* padding: 10rem 2rem creates a prominent, spacious hero section. */
-    min-height: 85vh;
-    /* min-height: 85vh makes the hero section take up most of the viewport.
-       This creates a bold first impression. */
+    padding: 12rem 2rem;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /* These flex properties vertically center the content in the hero section. */
     max-width: 1200px;
     margin: 0 auto;
-    /* These center the hero section and limit its width, matching <main>. */
 }
 
 .hero-content {
-    /* Wrapper for hero content provides better structure and flexibility. */
     width: 100%;
-    /* width: 100% ensures the wrapper takes full width of the hero section. */
 }
 
 #home.hero h1 {
-    font-size: 4rem;
-    /* font-size: 4rem makes the name large and impactful. */
-    margin-bottom: 1.5rem;
-    /* margin-bottom adds space between the name and tagline. */
-    color: white;
-    /* color: white ensures the name stands out. */
-    font-weight: 700;
-    /* font-weight: 700 is bold, making the name authoritative. */
-    letter-spacing: -1px;
-    /* letter-spacing: -1px tightens spacing for a modern, sleek look. */
-    line-height: 1.2;
-    /* line-height: 1.2 keeps multi-line names compact. */
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    margin-bottom: 1.25rem;
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
 }
 
 .tagline {
-    font-size: 1.5rem;
-    /* font-size: 1.5rem makes the tagline readable and prominent. */
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
     color: #66fcf1;
-    /* color: #66fcf1 uses the accent color to highlight the tagline. */
-    font-weight: 400;
-    /* font-weight: 400 is regular weight, creating contrast with the bold name. */
-    letter-spacing: 0.5px;
-    /* letter-spacing: 0.5px slightly increases spacing for readability. */
-    max-width: 600px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+    max-width: 680px;
     margin: 0 auto;
-    /* These center the tagline and limit its width for better readability. */
+    opacity: 0.9;
 }
 
-/* Keep the old .subtitle class for backwards compatibility if used elsewhere */
 .subtitle {
-    font-size: 1.25rem;
-    color: #66fcf1;
-    /* Updated to use accent color for consistency. */
-}
-
-/* Styling section headings (h2) */
-section h2 {
-    font-size: 2.75rem;
-    /* font-size: 2.75rem creates a clear hierarchy - smaller than h1, larger than h3. */
-    margin-bottom: 3rem;
-    /* margin-bottom: 3rem increases space below headings for better separation. */
-    color: white;
-    /* color: white ensures headings stand out on dark background. */
-    text-align: center;
-    font-weight: 600;
-    /* font-weight: 600 is semi-bold, making headings prominent. */
-    letter-spacing: -0.5px;
-    /* letter-spacing: -0.5px tightens spacing for a modern look. */
-}
-
-/* Styling paragraphs inside sections */
-section p {
-    margin-bottom: 1.5rem;
-    /* margin-bottom: 1.5rem increases space between paragraphs for readability. */
     font-size: 1.125rem;
-    /* font-size: 1.125rem (18px) is optimal for reading on screens. */
-    color: #c0c0c0;
-    /* color: #c0c0c0 is a lighter gray for body text - easier to read than pure white. */
-    line-height: 1.8;
-    /* line-height: 1.8 increases line spacing for better readability on dark backgrounds. */
-    max-width: 700px;
-    /* max-width: 700px limits paragraph width for optimal reading. */
+    color: #66fcf1;
 }
 
-/* Center paragraphs when they're direct children of centered sections */
+section h2 {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    margin-bottom: 4rem;
+    color: #ffffff;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: -0.8px;
+}
+
+section p {
+    margin-bottom: 1.25rem;
+    font-size: 1.0625rem;
+    color: #a8a8a8;
+    line-height: 1.75;
+    max-width: 680px;
+}
+
 section > p {
     margin-left: auto;
     margin-right: auto;
-    /* These center the paragraph horizontally. */
 }
 
-/* Styling section content wrapper for consistent structure */
 .section-content {
-    /* Wrapper for section content provides consistent styling and structure. */
-    max-width: 700px;
-    /* max-width: 700px limits content width for optimal readability. */
+    max-width: 680px;
     margin: 0 auto;
-    /* margin: 0 auto centers the content horizontally. */
     text-align: center;
-    /* text-align: center centers the text within the wrapper. */
 }
 
-/* Styling the about section */
 #about {
     background-color: transparent;
-    /* background-color: transparent keeps the dark theme consistent. */
-    margin: 2rem 0;
-    padding: 6rem 2rem;
-    /* padding: 6rem 2rem increases spacing for better visual separation. */
+    padding: 8rem 2rem;
     text-align: center;
-    /* text-align: center centers the content. */
 }
 
-/* Styling the projects section */
 #projects {
     background-color: transparent;
-    /* background-color: transparent maintains the dark theme. */
-    margin: 2rem 0;
-    padding: 6rem 2rem;
-    /* padding: 6rem 2rem provides consistent spacing with other sections. */
+    padding: 8rem 2rem;
     text-align: center;
-    /* text-align: center centers the section heading. */
 }
 
 .projects-grid {
     display: grid;
-    /* display: grid creates a grid layout (like a table). */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    /*
-        grid-template-columns creates columns.
-        repeat(auto-fit, minmax(300px, 1fr)) means:
-        - Create as many columns as fit
-        - Each column is at least 300px wide
-        - If there's extra space, make columns equal width (1fr)
-        This makes it responsive - columns adjust based on screen size.
-    */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
-    margin-top: 2rem;
+    margin-top: 3rem;
 }
 
 .project-card {
-    background-color: rgba(255, 255, 255, 0.03);
-    /* background-color: rgba(255, 255, 255, 0.03) creates a subtle dark card
-       that's slightly lighter than the background. */
+    background-color: rgba(255, 255, 255, 0.02);
     padding: 2.5rem;
-    /* padding: 2.5rem increases internal spacing for better content breathing room. */
-    border-radius: 12px;
-    /* border-radius: 12px rounds corners more for a modern look. */
-    border: 1px solid rgba(102, 252, 241, 0.2);
-    /* border uses a subtle accent color for definition. */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    /* transition animates multiple properties smoothly on hover. */
+    border-radius: 8px;
+    border: 1px solid rgba(102, 252, 241, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
 }
 
 .project-card:hover {
-    transform: translateY(-8px);
-    /*
-        transform: translateY moves the element up by 8px.
-        This creates a more pronounced "lift" effect on hover.
-    */
-    box-shadow: 0 10px 30px rgba(102, 252, 241, 0.15);
-    /* box-shadow creates a glowing effect using the accent color. */
-    border-color: rgba(102, 252, 241, 0.4);
-    /* border-color brightens the accent border on hover. */
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102, 252, 241, 0.08);
+    border-color: rgba(102, 252, 241, 0.25);
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .project-card h3 {
     color: #66fcf1;
-    /* color: #66fcf1 uses the accent color for project titles. */
-    margin-bottom: 1rem;
-    font-weight: 600;
-    /* font-weight: 600 makes titles stand out. */
-    font-size: 1.5rem;
-    /* font-size: 1.5rem creates clear hierarchy. */
+    margin-bottom: 0.875rem;
+    font-weight: 500;
+    font-size: 1.25rem;
+    letter-spacing: -0.3px;
 }
 
 .project-card p {
-    color: #b0b0b0;
-    /* color: #b0b0b0 is a softer gray for card descriptions. */
+    color: #909090;
     margin-bottom: 0;
-    /* margin-bottom: 0 removes bottom margin in cards. */
+    font-size: 0.9375rem;
+    line-height: 1.7;
 }
 
-/* Styling the contact section */
 #contact {
     background-color: transparent;
-    /* background-color: transparent maintains the dark theme. */
-    margin: 2rem 0;
-    padding: 6rem 2rem;
-    /* padding: 6rem 2rem matches other sections for consistency. */
+    padding: 8rem 2rem;
     text-align: center;
 }
 
-
-/* Styling the footer */
 footer {
-    background-color: rgba(10, 10, 10, 0.8);
-    /* background-color: rgba(10, 10, 10, 0.8) creates a slightly different
-       shade to separate the footer from the main content. */
-    color: #888;
-    /* color: #888 is a muted gray for footer text. */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #666;
     text-align: center;
-    padding: 3rem 2rem;
-    /* padding: 3rem 2rem increases footer spacing. */
-    margin-top: 6rem;
-    /* margin-top: 6rem creates separation from the last section. */
-    border-top: 1px solid rgba(102, 252, 241, 0.1);
-    /* border-top adds a subtle accent line above the footer. */
+    padding: 2.5rem 2rem;
+    margin-top: 8rem;
+    border-top: 1px solid rgba(102, 252, 241, 0.06);
+    font-size: 0.875rem;
 }
 
-/* 
-    This is a "media query" - it applies styles only when
-    the screen is 768px wide or less (phones and tablets).
-    This makes the website "responsive" - it adapts to different screen sizes.
-*/
 @media (max-width: 768px) {
-    /*
-        @media is how you make responsive designs.
-        The styles inside only apply when the condition is met.
-    */
     nav {
         flex-direction: column;
-        /* flex-direction: column stacks items vertically. */
-        gap: 1rem;
+        gap: 1.25rem;
     }
     
     .nav-links {
@@ -407,45 +235,18 @@ footer {
     
     main {
         padding: 0 1.5rem;
-        /* Reduced padding on mobile for better use of space. */
     }
     
     section {
-        padding: 4rem 0;
-        /* Reduced section padding on mobile. */
+        padding: 5rem 0;
     }
     
     #home.hero {
-        padding: 6rem 1.5rem;
-        /* Reduced hero padding on mobile. */
-        min-height: 75vh;
-        /* Slightly reduced min-height on mobile. */
-    }
-    
-    #home.hero h1 {
-        font-size: 2.5rem;
-        /* Smaller heading on mobile - still readable but fits better on small screens. */
-    }
-    
-    .tagline {
-        font-size: 1.2rem;
-        /* Smaller tagline on mobile for better fit. */
-    }
-    
-    section h2 {
-        font-size: 2.25rem;
-        /* Smaller section headings on mobile. */
-        margin-bottom: 2rem;
-        /* Reduced margin on mobile. */
-    }
-    
-    section p {
-        font-size: 1rem;
-        /* Slightly smaller body text on mobile. */
+        padding: 8rem 1.5rem;
+        min-height: 80vh;
     }
     
     .projects-grid {
         grid-template-columns: 1fr;
-        /* Single column on mobile. */
     }
 }
