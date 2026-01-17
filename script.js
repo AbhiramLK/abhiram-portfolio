@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const centerY = particleCanvas.height / (2 * pDpr);
         
         if (state === 'assemble') {
-            transitionProgress += 0.008;
+            transitionProgress += 0.025;
             if (transitionProgress >= 1) {
                 transitionProgress = 1;
                 state = 'hold';
@@ -407,18 +407,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dy = (target.baseY + centerY) - p.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 
-                p.vx += dx * 0.05 * transitionProgress;
-                p.vy += dy * 0.05 * transitionProgress;
-                p.vx *= 0.92;
-                p.vy *= 0.92;
+                p.vx += dx * 0.12 * transitionProgress;
+                p.vy += dy * 0.12 * transitionProgress;
+                p.vx *= 0.88;
+                p.vy *= 0.88;
                 
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.min(1, p.opacity + 0.02);
+                p.opacity = Math.min(1, p.opacity + 0.05);
             });
         } else if (state === 'hold') {
-            transitionProgress += 0.001;
-            if (transitionProgress > 3) {
+            transitionProgress += 0.01;
+            if (transitionProgress > 1.5) {
                 state = 'dissolve';
                 transitionProgress = 0;
             }
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 p.vy *= 0.95;
             });
         } else if (state === 'dissolve') {
-            transitionProgress += 0.01;
+            transitionProgress += 0.03;
             if (transitionProgress >= 1) {
                 currentWordIndex = (currentWordIndex + 1) % words.length;
                 particles = particles.map(p => ({
@@ -456,8 +456,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: p.y,
                     baseX: (Math.random() - 0.5) * particleCanvas.width,
                     baseY: (Math.random() - 0.5) * particleCanvas.height,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: (Math.random() - 0.5) * 2,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 3,
                     opacity: p.opacity
                 }));
                 initParticles();
@@ -465,13 +465,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             particles.forEach(p => {
-                p.vx += (Math.random() - 0.5) * 0.5;
-                p.vy += (Math.random() - 0.5) * 0.5;
-                p.vx *= 0.98;
-                p.vy *= 0.98;
+                p.vx += (Math.random() - 0.5) * 1.2;
+                p.vy += (Math.random() - 0.5) * 1.2;
+                p.vx *= 0.96;
+                p.vy *= 0.96;
                 p.x += p.vx;
                 p.y += p.vy;
-                p.opacity = Math.max(0, p.opacity - 0.015);
+                p.opacity = Math.max(0, p.opacity - 0.04);
             });
         }
     }
