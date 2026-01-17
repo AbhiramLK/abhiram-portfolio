@@ -76,15 +76,22 @@
         </nav>
     </header>
 
-    <main>
+    <!--
+        Hero section - This is the introductory banner at the top of the page.
+        It's semantically placed before <main> as it's a special introductory section.
+    -->
+    <section id="home" class="hero" role="banner">
         <!--
-            <main> represents the main content of the page.
+            <section> groups related content together.
+            id="home" lets us link directly to this section (see nav links above).
+            class="hero" adds a CSS class for styling - we'll style this as a hero section.
+            role="banner" is an ARIA landmark role that indicates this is the main
+            banner/introductory content of the page.
         -->
-        <section id="home" class="hero">
+        <div class="hero-content">
             <!--
-                <section> groups related content together.
-                id="home" lets us link directly to this section (see nav links above).
-                class="hero" adds a CSS class for styling - we'll style this as a hero section.
+                <div class="hero-content"> wraps the hero content for better structure
+                and styling flexibility. This is a container for the hero elements.
             -->
             <h1>Abhiram Chandrasekhar</h1>
             <!--
@@ -97,43 +104,92 @@
                 class="tagline" styles this as a tagline - a short description
                 that appears below your name. This tells visitors what you do.
             -->
-        </section>
+        </div>
+    </section>
 
-        <section id="about">
-            <h2>About Me</h2>
+    <main>
+        <!--
+            <main> represents the main content of the page.
+            This contains the primary content sections (about, projects, contact).
+            The hero section is outside main as it's a special introductory banner.
+        -->
+        <section id="about" aria-labelledby="about-heading">
+            <!--
+                <section> groups related content together.
+                id="about" lets us link directly to this section (see nav links above).
+                aria-labelledby links this section to its heading for better accessibility.
+            -->
+            <h2 id="about-heading">About Me</h2>
             <!--
                 <h2> is a subheading (smaller than h1).
+                id="about-heading" connects this heading to the section's aria-labelledby.
             -->
-            <p>This is where you can write about yourself, your skills, and what you do.</p>
-            <p>Replace this with your own information!</p>
-        </section>
-
-        <section id="projects">
-            <h2>Projects</h2>
-            <div class="projects-grid">
+            <div class="section-content">
                 <!--
-                    <div> is a generic container - it doesn't mean anything specific,
-                    but it helps organize and style content. Think of it as an
-                    invisible box you can put things in.
+                    <div class="section-content"> wraps the content for consistent
+                    styling and structure across sections.
                 -->
-                <div class="project-card">
-                    <h3>Project 1</h3>
-                    <p>Description of your first project goes here.</p>
-                </div>
-                <div class="project-card">
-                    <h3>Project 2</h3>
-                    <p>Description of your second project goes here.</p>
-                </div>
-                <div class="project-card">
-                    <h3>Project 3</h3>
-                    <p>Description of your third project goes here.</p>
-                </div>
+                <p>This is where you can write about yourself, your skills, and what you do.</p>
+                <p>Replace this with your own information!</p>
             </div>
         </section>
 
-        <section id="contact">
-            <h2>Contact</h2>
-            <p>You can add your email, social media links, or a contact form here.</p>
+        <section id="projects" aria-labelledby="projects-heading">
+            <!--
+                <section> groups related content together.
+                id="projects" lets us link directly to this section (see nav links above).
+                aria-labelledby links this section to its heading for better accessibility.
+            -->
+            <h2 id="projects-heading">Projects</h2>
+            <div class="projects-grid">
+                <!--
+                    <div class="projects-grid"> creates a grid layout for project cards.
+                    This uses CSS Grid to arrange projects in a responsive grid.
+                -->
+                <article class="project-card">
+                    <!--
+                        <article> is a semantic HTML5 element that represents
+                        a self-contained piece of content. Each project is an article
+                        because it can stand alone as a complete piece of information.
+                        This is more semantic than using <div>.
+                    -->
+                    <h3>Project 1</h3>
+                    <!--
+                        <h3> is a heading for the project title.
+                    -->
+                    <p>Description of your first project goes here.</p>
+                </article>
+                <article class="project-card">
+                    <!--
+                        Each project is an <article> for semantic structure.
+                    -->
+                    <h3>Project 2</h3>
+                    <p>Description of your second project goes here.</p>
+                </article>
+                <article class="project-card">
+                    <!--
+                        Each project is an <article> for semantic structure.
+                    -->
+                    <h3>Project 3</h3>
+                    <p>Description of your third project goes here.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="contact" aria-labelledby="contact-heading">
+            <!--
+                <section> groups related content together.
+                id="contact" lets us link directly to this section (see nav links above).
+                aria-labelledby links this section to its heading for better accessibility.
+            -->
+            <h2 id="contact-heading">Contact</h2>
+            <div class="section-content">
+                <!--
+                    <div class="section-content"> wraps the content for consistent
+                    styling and structure across sections.
+                -->
+                <p>You can add your email, social media links, or a contact form here.</p>
+            </div>
         </section>
     </main>
 

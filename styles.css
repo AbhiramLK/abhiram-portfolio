@@ -7,7 +7,7 @@
     CSS uses "selectors" to target HTML elements and "properties" to style them.
     For example: "h1 { color: blue; }" means "make all h1 headings blue".
     
-    Comments in CSS use /* ... */ (different from HTML's <!-- ... -->).
+    Comments in CSS use /* ... */ syntax (different from HTML's <!-- ... -->).
 */
 
 /* 
@@ -165,6 +165,7 @@ section {
 
 /* Styling the home section specifically - This is the hero section */
 #home.hero {
+    /* Hero section is now outside <main> for better semantic structure. */
     text-align: center;
     /* text-align: center centers text horizontally. */
     background-color: transparent;
@@ -180,6 +181,15 @@ section {
     flex-direction: column;
     justify-content: center;
     /* These flex properties vertically center the content in the hero section. */
+    max-width: 1200px;
+    margin: 0 auto;
+    /* These center the hero section and limit its width, matching <main>. */
+}
+
+.hero-content {
+    /* Wrapper for hero content provides better structure and flexibility. */
+    width: 100%;
+    /* width: 100% ensures the wrapper takes full width of the hero section. */
 }
 
 #home.hero h1 {
@@ -254,6 +264,17 @@ section > p {
     /* These center the paragraph horizontally. */
 }
 
+/* Styling section content wrapper for consistent structure */
+.section-content {
+    /* Wrapper for section content provides consistent styling and structure. */
+    max-width: 700px;
+    /* max-width: 700px limits content width for optimal readability. */
+    margin: 0 auto;
+    /* margin: 0 auto centers the content horizontally. */
+    text-align: center;
+    /* text-align: center centers the text within the wrapper. */
+}
+
 /* Styling the about section */
 #about {
     background-color: transparent;
@@ -263,11 +284,6 @@ section > p {
     /* padding: 6rem 2rem increases spacing for better visual separation. */
     text-align: center;
     /* text-align: center centers the content. */
-}
-
-#about p {
-    text-align: center;
-    /* text-align: center centers paragraphs within the section. */
 }
 
 /* Styling the projects section */
@@ -350,10 +366,6 @@ section > p {
     text-align: center;
 }
 
-#contact p {
-    text-align: center;
-    /* text-align: center centers the contact text. */
-}
 
 /* Styling the footer */
 footer {
