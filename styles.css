@@ -111,6 +111,31 @@ section {
     padding: 8rem 3rem;
     position: relative;
     text-align: center;
+    overflow: hidden;
+}
+
+.globe-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    max-width: 90vw;
+    max-height: 90vh;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.globe-canvas.dragging {
+    pointer-events: auto;
+    cursor: grabbing;
+}
+
+.globe-canvas:hover {
+    opacity: 0.2;
+    cursor: grab;
 }
 
 .hero-content {
@@ -121,6 +146,8 @@ section {
     align-items: center;
     gap: 2rem;
     margin-bottom: 6rem;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-title {
@@ -194,6 +221,7 @@ section {
     animation: ctaReveal 1s ease forwards;
     animation-delay: 1.8s;
     font-family: 'Inter', sans-serif;
+    z-index: 1;
 }
 
 .hero-cta:hover {
